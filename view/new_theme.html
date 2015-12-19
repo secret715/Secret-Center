@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    	<title>{part} | {title}</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="application-name" content="{title}" />
+		<meta name="author" content="Secret" />
+		<meta property="og:title" content="{title}" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="{title}" />
+		<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<link href="{style}" rel="stylesheet" type="text/css">
+		{scripts}
+		<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row-fluid">
+				<div class="content">
+					<nav id="nav" class="navbar navbar-inverse navbar-fixed-top">
+						<div class="navbar-inner">
+							<a class="brand" href="#">{title}</a>
+							<ul class="nav">
+								{nav}
+							</ul>
+						</div>
+					</nav>
+					<div id="notifs-button"></div>
+					{content}
+				</div>
+				<footer>
+						<p>Secret會員系統由<a href="http://center.gdsecret.com/#team" target="_black">Secret 會員系統開發團隊</a>製作！</p>
+				</footer>
+			</div>
+		</div>
+	</body>
+</html>

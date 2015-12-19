@@ -1,0 +1,17 @@
+SET NAMES utf8;
+SET time_zone = '+00:00';
+SET foreign_key_checks = 0;
+SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+DROP TABLE IF EXISTS `chat`;
+DROP TABLE IF EXISTS `forum`;
+DROP TABLE IF EXISTS `forum_block`;
+DROP TABLE IF EXISTS `forum_reply`;
+DROP TABLE IF EXISTS `member`;
+DROP TABLE IF EXISTS `notice`;
+CREATE TABLE `chat` (`id` mediumint(9) NOT NULL AUTO_INCREMENT, `name` varchar(30) COLLATE utf8_unicode_ci NOT NULL, `data` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `ptime` datetime NOT NULL, PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `forum` (`id` mediumint(9) NOT NULL AUTO_INCREMENT, `post_title` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL, `post` text COLLATE utf8_unicode_ci NOT NULL, `block` int(11) NOT NULL, `posted` varchar(40) COLLATE utf8_unicode_ci NOT NULL, `level` int(11) COLLATE utf8_unicode_ci NOT NULL, `ptime` datetime NOT NULL, PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `forum_block` ( `id` int(11) NOT NULL AUTO_INCREMENT, `blockname` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `position` tinyint(4) NOT NULL, `ptime` datetime NOT NULL, PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `forum_reply` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `post` mediumint(9) NOT NULL, `reply` text COLLATE utf8_unicode_ci NOT NULL, `ptime` datetime NOT NULL, `posted` varchar(30) COLLATE utf8_unicode_ci NOT NULL, PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `member` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `name` varchar(30) COLLATE utf8_unicode_ci NOT NULL, `password` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `web_site` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL, `avatar` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `rekey` varchar(40) COLLATE utf8_unicode_ci NOT NULL, `level` int(11) COLLATE utf8_unicode_ci NOT NULL, `joined` datetime NOT NULL, `last_login` datetime NOT NULL, PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `notice` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `content` text COLLATE utf8_unicode_ci NOT NULL, `status` tinyint(4) NOT NULL, `send_from` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `send_to` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `ptime` datetime NOT NULL, PRIMARY KEY (`id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+INSERT INTO `forum_block` (`blockname`, `position`, `ptime`) VALUES ('預設區塊', '1', now());

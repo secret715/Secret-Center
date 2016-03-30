@@ -1,4 +1,36 @@
 <?php
+/*
+<Secret Center, open source member management system>
+Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Also add information on how to contact you by electronic and paper mail.
+
+  If your software can interact with users remotely through a computer
+network, you should also make sure that it provides a way for users to
+get its source.  For example, if your program is a web application, its
+interface could display a "Source" link that leads users to an archive
+of the code.  There are many ways you could offer source, and different
+solutions will be better for different programs; see section 13 for the
+specific requirements.
+
+  You should also get your employer (if you work as a programmer) or school,
+if any, to sign a "copyright disclaimer" for the program, if necessary.
+For more information on this, and how to apply and follow the GNU AGPL, see
+<http://www.gnu.org/licenses/>.
+*/
+
 set_include_path('../include/');
 $includepath = true;
 
@@ -11,136 +43,129 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
     exit;
 }
 
-if(isset($_GET['del'])&& abs($_GET['del'])!=''){
-	$del[] = sprintf("DELETE FROM forum WHERE id = '%d'",abs($_GET['del']));
-    $del[] = sprintf("DELETE FROM forum_reply WHERE post = '%d'",abs($_GET['del']));
-    foreach($del as $val){
-		$SQL->query($val);
-	}
-	header("Location: forum.php?del");
-	exit;
-}
-
 if((!isset($_GET['id']))or($_GET['id']=='')){
     header("Location: forum.php");
 	exit;
 }
 
-$post = $SQL->query("SELECT * FROM forum WHERE id = '%s'",array($_GET['id']));
-$post_row = $post->fetch_assoc();
-$post_num_rows = $post->num_rows;
+$_post = sc_get_result("SELECT * FROM `forum` WHERE `id` = '%d'",array($_GET['id']));
 
-if($post_num_rows<=0){
+if($_post['num_rows']<=0){
 	header("Location: forum.php");
 	exit;
 }
 
 
-if(isset($_GET['delreply']) && $_GET['delreply'] != ''){
-	$SQL->query("DELETE FROM forum_reply WHERE id = %d",array($_GET['delreply']));
-	header("Location: forumview.php?delreply&id=".$_GET['id']);
+if(isset($_GET['del']) && $_GET['del'] != ''){
+    $_del[] = sprintf("DELETE FROM `forum` WHERE `id` = '%d'",$_GET['del']);
+    $_del[] = sprintf("DELETE FROM `forum_reply` WHERE `post_id` = '%d'",$_GET['del']);
+    foreach($_del as $val){
+		$SQL->query($val);
+	}
+	header('Location: forum.php?del&fid='.$_post['row']['block']);
+}elseif(isset($_GET['delreply']) && $_GET['delreply'] != ''){
+	$SQL->query("DELETE FROM `forum_reply` WHERE `id` = '%d'",array($_GET['delreply']));
+	header("Location: forumview.php?delreply&id=".$_post['row']['id']);
 }
 
-
-$_block = $SQL->query("SELECT * FROM `forum_block` WHERE `id`='%d'",array(abs(intval($post_row['block']))))->fetch_assoc();
+$_block = sc_get_result("SELECT * FROM `forum_block` WHERE `id`='%d'",array($_post['row']['block']));
 
 $limit_row=$center['forum']['limit'];
+	
 if(isset($_GET['page'])){
 	$limit_start = abs(intval(($_GET['page']-1)*$limit_row));
-	$reply_sql = sprintf("SELECT * FROM forum_reply WHERE post = '%s' ORDER BY id ASC LIMIT %d,%d",$_GET['id'],$limit_start,$limit_row);
+	$_reply = sc_get_result("SELECT * FROM `forum_reply` WHERE `post_id`='%d' ORDER BY `mktime` ASC LIMIT %d,%d",array($_post['row']['id'],$limit_start,$limit_row));
 } else {
-	$limit_start = 0;
-	$reply_sql = sprintf("SELECT * FROM forum_reply WHERE post = '%s' ORDER BY id ASC LIMIT %d,%d",$_GET['id'],$limit_start,$limit_row);
+	$limit_start=0;
+	$_reply = sc_get_result("SELECT * FROM `forum_reply` WHERE `post_id`='%d' ORDER BY `mktime` ASC LIMIT %d,%d",array($_post['row']['id'],$limit_start,$limit_row));
 }
-$reply_query = $SQL->query($reply_sql);
-$reply_num_rows = $reply_query->num_rows;
-
-
-$view = new View('../view/new_theme.html','../include/admin_nav.php',$center['site_name'],$post_row['post_title'],true);
-$view->addScript("https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js");
-$view->addScript("../include/js/channel.js");
+$_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_post['row']['author']));
+$view = new View('theme/admin_default.html','admin/nav.php','',$center['site_name'],$_post['row']['title'],true);
 ?>
-<div class="main">
+<script>
+$(function(){
+	$('a.btn.btn-danger').click(function(e){
+		if(!window.confirm("確定刪除？")){
+			e.preventDefault();
+		}
+	});
+});
+</script>
 <?php if(isset($_GET['editok'])){ ?>
 	<div class="alert alert-success">編輯成功！</div>
-<?php }
-if(isset($_GET['delreply']) && $_GET['delreply'] == ''){?>
+<?php }elseif(isset($_GET['delreply'])){ ?>
 	<div class="alert alert-success">刪除成功！</div> 
 <?php } ?>
 <ul class="breadcrumb">
-	<li><a href="forum.php">論壇</a><span class="divider">/</span></li>
-	<li><a href="forum.php?fid=<?php echo $_block['id']; ?>"><?php echo $_block['blockname']; ?></a><span class="divider">/</span></li>
-	<li class="active"><?php echo lt_replace($post_row['post_title']); ?></li>
+	<li><a href="forum.php">論壇</a></li>
+	<li><a href="forum.php?fid=<?php echo $_block['row']['id']; ?>"><?php echo $_block['row']['blockname']; ?></a></li>
+	<li class="active"><?php echo sc_removal_escape_string($_post['row']['title']); ?></li>
 </ul>
-<h2>
-	<?php echo $post_row['post_title']; ?>
-	<?php if($post_row['level']>1){ ?>
-	<span class="label"><?php echo sc_member_level($post_row['level']); ?></span>
+<ul class="list-inline">
+	<li>
+		<h2><?php echo $_post['row']['title']; ?></h2>
+	</li>
+	<?php if($_post['row']['level']>1){ ?>
+	<li>
+		<span class="label label-default"><?php echo sc_member_level($_post['row']['level']); ?></span>
+	</li>
 	<?php } ?>
-</h2>
+</ul>
 <div id="1" class="post">
-	<ul class="inline">
+	<ul class="list-inline">
 		<li>
-			<img src="../include/avatar.php?id=<?php echo $post_row['posted']; ?>" class="avatar">
+			<img src="<?php echo sc_avatar_url($_post['row']['author']); ?>" class="avatar">
 		</li>
-		<li style="font-size:120%;"><?php echo $post_row['posted']; ?></li>
-		<li>發表於&nbsp;<?php echo $post_row['ptime']; ?></li>
+		<li style="font-size:120%;"><?php echo $_author['row']['username']; ?></li>
+		<li>發表於&nbsp;<?php echo $_post['row']['mktime']; ?></li>
 		<li>1&nbsp;樓</li>
+		<?php if($_post['row']['author'] == $_SESSION['Center_Id']){ ?>
 		<li>
-			<a href="forumedit.php?post&id=<?php echo $post_row['id']; ?>" class="btn btn-info btn-small">
+			<a href="forumedit.php?post&id=<?php echo $_post['row']['id']; ?>" class="btn btn-info btn-sm">
 				編輯
 			</a>
-			<a href="javascript:if(confirm('確定刪除？'))location='forumview.php?del=<?php echo $post_row['id']; ?>'" class="btn btn-danger btn-small">
+			<a href="forumview.php?del=<?php echo $_post['row']['id']; ?>&id=<?php echo $_post['row']['id']; ?>" class="btn btn-danger btn-sm">
 				刪除
 			</a>	
 		</li>
+		<?php } ?>
 	</ul>
-    <div class="con"><?php echo removal_escape_string($post_row['post']); ?></div>
+    <div class="con"><?php echo sc_removal_escape_string($_post['row']['content']); ?></div>
 </div>
 <?php
-if($reply_num_rows != 0){
-	$reply_floor = 1+$limit_start;
-	while ($reply_row = $reply_query->fetch_assoc()){
-		$reply_floor++;
+if($_reply['num_rows']>0){
+	$_floor = 1+$limit_start;
+	do{
+		$_floor++;
+		$_reply_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_reply['row']['author']));
 ?>
-<div id="<?php echo $reply_floor; ?>" class="post">
-	<ul class="inline">
+<div id="<?php echo $_floor; ?>" class="post">
+	<ul class="list-inline">
 		<li>
-			<img src="../include/avatar.php?id=<?php echo $reply_row['posted']; ?>" class="avatar">
+			<img src="<?php echo sc_avatar_url($_reply['row']['author']); ?>" class="avatar">
 		</li>
-		<li style="font-size:130%;"><?php echo $reply_row['posted']; ?></li>
-		<li>發表於&nbsp;<?php echo $reply_row['ptime']; ?></li>
-		<li><?php echo $reply_floor; ?>&nbsp;樓</li>
+		<li style="font-size:130%;"><?php echo $_reply_author['row']['username']; ?></li>
+		<li>發表於&nbsp;<?php echo $_reply['row']['mktime']; ?></li>
+		<li><?php echo $_floor; ?>&nbsp;樓</li>
+		<?php if($_reply['row']['author']==$_SESSION['Center_Id']){ ?>
 		<li>
-			<a href="forumedit.php?reply&id=<?php echo $reply_row['id']; ?>" class="btn btn-info btn-small">
+			<a href="forumedit.php?reply&id=<?php echo $_reply['row']['id']; ?>" class="btn btn-info btn-sm">
 				編輯
 			</a>
-			<a href="forumview.php?delreply=<?php echo $reply_row['id']; ?>&id=<?php echo $_GET['id']; ?>" class="btn btn-danger btn-small">
-				刪除此回覆
+			<a href="forumview.php?delreply=<?php echo $_reply['row']['id']; ?>&id=<?php echo $_post['row']['id']; ?>" class="btn btn-danger btn-sm">
+				刪除
 			</a>
 		</li>
+		<?php } ?>
 	</ul>
-	<div class="con"><?php echo removal_escape_string($reply_row['reply']); ?></div>
+	<div class="con"><?php echo sc_removal_escape_string($_reply['row']['content']); ?></div>
 </div>
 <?php
-	}
+	}while($_reply['row'] = $_reply['query']->fetch_assoc());
 }
-$nav = $SQL->query("SELECT * FROM forum_reply WHERE post = '%s'",array($_GET['id']));
-$pageTotal = ceil($nav->num_rows / $limit_row);
-
-if($pageTotal>1){
-	echo '<div class="pagination"><ul>';
-	for($i=1;$i<=$pageTotal;$i++){
-		if(@$_GET['page']!=$i){
-				echo '<li><a href="forumview.php?id='.$_GET['id'].'&page='.$i.'">'.$i.'</a></li>';
-			}else{
-				echo '<li class="active"><a href="#">'.$i.'</a></li>';
-		}
-	}
-	echo '</ul></div><br class="clearfix" />';
-}
+$_all_reply=sc_get_result("SELECT COUNT(*) FROM `forum_reply` WHERE `post_id`='%d'",array($_post['row']['id']));
+echo sc_page_pagination('forumview.php',@$_GET['page'],implode('',$_all_reply['row']),$center['forum']['limit'],'&id='.$_post['row']['id']);
 ?>
-</div>
 <?php
 $view->render();
 ?>

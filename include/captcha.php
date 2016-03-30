@@ -1,4 +1,36 @@
 <?php
+/*
+<Secret Center, open source member management system>
+Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Also add information on how to contact you by electronic and paper mail.
+
+  If your software can interact with users remotely through a computer
+network, you should also make sure that it provides a way for users to
+get its source.  For example, if your program is a web application, its
+interface could display a "Source" link that leads users to an archive
+of the code.  There are many ways you could offer source, and different
+solutions will be better for different programs; see section 13 for the
+specific requirements.
+
+  You should also get your employer (if you work as a programmer) or school,
+if any, to sign a "copyright disclaimer" for the program, if necessary.
+For more information on this, and how to apply and follow the GNU AGPL, see
+<http://www.gnu.org/licenses/>.
+*/
+
 if(!session_id()) session_start();
 
 function captcha(){
@@ -29,8 +61,9 @@ function genColor($r, $br = 0, $g = 0, $bg = 0, $b = 0, $bb = 0, $a = 0){
 
 captcha();
 
-$width = 300;
-$height = 75;
+$width =250;
+$height = 60;
+$font=array('RiseStarHandRegular.otf');
 $image = imagecreatetruecolor($width, $height);
 
 $text = $_SESSION['captcha'];
@@ -39,44 +72,47 @@ imagefilledrectangle($image, 1, 1, $width - 2, $height - 2, $bg);
 
 imagealphablending($image, true);
 
-for($a = 1; $a <= 8; $a++){
-	$p = $a / 8;
+$pa=8;
+for($a = 1; $a <= $pa; $a++){
+	$p = $a / $pa;
 	imageline($image, 1, $height * $p, $width - 2, $height * $p, imagecolorallocate($image, 127, 186, 190));
 	imageline($image, $width * $p, 1, $width * $p, $height - 2, imagecolorallocate($image, 127, 186, 190));
 }
 
 imagettftext(
 	$image,
-	$height * ((30+rand(0,5))*0.01),
+	$height * 0.4,
 	0,
 	mt_rand($width * 0.1, $width * 0.3),
-	mt_rand($height * 0.3, $height * 0.85),
+	mt_rand($height * 0.33, $height * 0.85),
 	genColor(80),
-	'./captchafont.ttf',
+	$font[array_rand($font)],
 	substr($text, 0, 2)
 );
 
+
 imagettftext(
 	$image, 
-	$height * ((30+rand(0,5))*0.01), 
+	$height * 0.4, 
 	0, 
 	mt_rand($width * 0.4, $width * 0.55), 
-	mt_rand($height * 0.3, $height * 0.85),
+	mt_rand($height * 0.33, $height * 0.85),
 	genColor(100), 
-	'./captchafont.ttf', 
+	$font[array_rand($font)],
 	substr($text, 2, 2)
 );
 
 imagettftext(
 	$image, 
-	$height * ((30+rand(0,5))*0.01), 
+	$height * 0.4, 
 	0, 
 	mt_rand($width * 0.6, $width * 0.8), 
-	mt_rand($height * 0.3, $height * 0.85), 
+	mt_rand($height * 0.33, $height * 0.85), 
 	genColor(100),
-	'./captchafont.ttf', 
+	$font[array_rand($font)], 
 	substr($text, 4, 2)
 );
+
 
 for($i = 0; $i < 8; $i++){
 	imagefilledarc($image, mt_rand($width * 0.15, $width * 0.8), mt_rand($height * 0.15, $height * 0.8), $height * 0.4, $height * 0.4, 0, 360, genColor(255, 180, 255, 110, 255, 90, 110), IMG_ARC_PIE);

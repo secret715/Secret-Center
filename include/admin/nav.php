@@ -30,48 +30,31 @@ if any, to sign a "copyright disclaimer" for the program, if necessary.
 For more information on this, and how to apply and follow the GNU AGPL, see
 <http://www.gnu.org/licenses/>.
 */
-
-class Database {
-	private $conn;
-	private $addr;
-	private $user;
-	private $pass;
-	private $db;
-
-	public function __construct($addr,$user,$pass,$db){
-		$this->addr = $addr;
-		$this->user = $user;
-		$this->pass = $pass;
-		$this->db = $db;
-
-		$this->conn = new mysqli($addr,$user,$pass,$db);
-		
-		if($this->conn->connect_error !== null){
-			throw new Exception($this->conn->connect_error);
-		}
-	}
-	
-	private function reconnect(){
-		$this->conn = new mysqli($this->addr,$this->user,$this->pass,$this->db);
-	}
-
-	private function checkConn(){
-		return $this->conn->ping();
-	}
-
-	public function query($query,$data = array()){
-		if(!$this->checkConn()) $this->reconnect();
-		
-		foreach($data as $k=>$d){
-			$data[$k] = $this->conn->real_escape_string($d);
-		}
-		
-		$result = $this->conn->query(vsprintf($query,$data));
-		
-		if($result === false){
-			throw new Exception($this->conn->error);
-		}
-		
-		return $result;
-	}
-};
+ if((isset($_SESSION['Center_Username']))&&($_SESSION['Center_UserGroup']==9)){ ?>
+	<li><a href="index.php">後臺首頁</a></li>
+	<li class="dropdown">
+		<a href="member.php" data-target="#" data-toggle="dropdown">會員管理 ▼</a>
+		<ul class="dropdown-menu">
+			<li><a href="member.php">會員管理</a></li>
+			<li><a href="membersearch.php">會員搜尋</a></li>
+		</ul>
+	</li>
+	<li><a href="chat.php">聊天管理</a></li>
+	<li class="dropdown">
+		<a href="forum.php" data-target="#" data-toggle="dropdown">論壇管理 ▼</a>
+		<ul class="dropdown-menu">
+			<li><a href="forum.php">論壇管理</a></li>
+			<li><a href="forumsearch.php">論壇搜尋</a></li>
+			<li><a href="forummerge.php">區塊合併</a></li>
+		</ul>
+	</li>
+	<li><a href="notice.php">通知管理</a></li>
+	<li class="dropdown">
+		<a href="editconfig.php" data-target="#" data-toggle="dropdown">系統設定 ▼</a>
+		<ul class="dropdown-menu">
+			<li><a href="editconfig.php">系統設定</a></li>
+			<li><a href="editcss.php">網站樣式</a></li>
+		</ul>
+	</li>
+	<li><a href="../member.php">會員中心</a></li>
+<?php } ?>

@@ -1,79 +1,75 @@
-﻿==================================================================================
-『Secret會員系統』由 Secret 會員系統開發團隊 (http://center.gdsecret.com/#team)製作！
-並使用 GNU Affero General Public License 3.0 (AGPL 3.0) 授權。
-==================================================================================
+﻿===============================================
+Secret Center 由 Secret Center 開發團隊 (http://center.gdsecret.net/#team) 製作
+使用 GNU AFFERO GENERAL PUBLIC LICENSE 3.0 (AGPL 3.0) 授權。
+===============================================
 
-安裝方法
-1.上傳文件後，執行http://你的網址/install.php
-2.填入相關資料
-3.安裝成功！
+Secret Center
 
------------------------------------------------
+內建聊天室、論壇、通知以及後臺管理的會員系統
 
-後台位置：http://你的網址/admin/index.php
-
-詳細資料(如：網站名稱)，請到config.php裡修改
+官方網站：http://center.gdsecret.net/
 
 -----------------------------------------------
 
-12月19日(8.1版)更新資訊
+安裝
+
+1. 上傳文件後，執行 install.php
+2. 填入相關資料
+3. 安裝成功！
+
+-----------------------------------------------
+
+使用
+
+* 後台位置：http://你的網址/admin/index.php
+* 詳細資料(如：網站名稱)：config.php
+
+-----------------------------------------------
+
+從Secret會員系統8.1升級
+
+1. 備份 Connections/SQL.php 及資料庫
+2. 上傳新版，不要覆蓋 Connections/SQL.php
+3. 執行 upgrade.php
+4. 升級成功！
+
+-----------------------------------------------
+
+其他
+
+本專案所引用的其他開放原始碼軟體：
+
+Bootstrap v3.3.6
+授權：MIT License  
+官方網站：http://getbootstrap.com/
+
+CLEditor
+授權：MIT License  
+官方網站：http://premiumsoftware.net/cleditor/
+
+-----------------------------------------------
+
+Secret Center 9.0 (3月30日) 更新資訊
 
 主要更新：
-　　◎升級HTML Purifier至4.7.0版
-　　◎預設的config增加對docx,pptx,xlsx支援
-　　◎頭像尺寸更改為六級制
+　　◎程式全數重構
+　　◎移除文件夾
+　　◎升級至 Bootstrap 3.x 系列
+
+
+聊天室更新：
+　　◎增加『@』功能
+
 
 
 論壇更新：
-　　◎修正論壇搜尋可以直接送出的BUG
-
-
-文件夾更新：
-　　◎升級jQuery File Upload至9.11.2版
-　　◎檔案管理改用AJAX
-　　◎管理選單雙擊檔案也可觸發
+　　◎回覆增加『@』功能
 
 
 通知系統更新：
 　　◎節省資料傳輸
-　　◎通知按鈕使用 e.preventDefault();
+　　◎通知改用 Ajax Long Polling
 
 
 後台更新：
-　　◎頭像上傳可設定是否壓縮圖片為高度最高 240px、畫質 80 的 JPG
-
------------------------------------------------
-
-升級方法(8.0 to 8.1)
-
-1.覆蓋所有檔案
-2.修改Connections/SQL.php的連線資訊
-3.升級完成！
-
------------------------------------------------
-
-本專案所引用的其他開放原始碼軟體：
-
-CLEditor v1.4.5
-授權：MIT License
-官方網站：http://premiumsoftware.net/cleditor/
-
-
-Bootstrap v2.3.2
-授權：Apache License v2.0
-官方網站：http://getbootstrap.com/2.3.2/
-
-
-HTML Purifier v4.7.0
-授權：LGPL v2.1+
-官方網站：http://htmlpurifier.org/
-
-
-jQuery File Upload v9.11.2
-授權：MIT License
-官方網站：https://blueimp.github.io/jQuery-File-Upload/
-
-
-jQuery Validation Plugin v1.14.0
-授權：MIT License
-官方網站：http://jqueryvalidation.org/
+　　◎增加更多網站樣式設定

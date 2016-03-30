@@ -1,4 +1,36 @@
 <?php
+/*
+<Secret Center, open source member management system>
+Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Also add information on how to contact you by electronic and paper mail.
+
+  If your software can interact with users remotely through a computer
+network, you should also make sure that it provides a way for users to
+get its source.  For example, if your program is a web application, its
+interface could display a "Source" link that leads users to an archive
+of the code.  There are many ways you could offer source, and different
+solutions will be better for different programs; see section 13 for the
+specific requirements.
+
+  You should also get your employer (if you work as a programmer) or school,
+if any, to sign a "copyright disclaimer" for the program, if necessary.
+For more information on this, and how to apply and follow the GNU AGPL, see
+<http://www.gnu.org/licenses/>.
+*/
+
 set_include_path('../include/');
 $includepath = true;
 
@@ -12,52 +44,58 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
 }
 
 if(isset($_GET['logout'])){
-	$_SESSION['Center_Username'] = NULL;
-	$_SESSION['Center_UserGroup'] = NULL;
-	unset($_SESSION['Center_Username']);
-	unset($_SESSION['Center_UserGroup']);
-	setcookie("login","",time()-7200);
+	sc_loginout();
 	header("Location: ../index.php?out");
 	exit;
 }
-
-$view = new View('../view/new_theme.html','../include/admin_nav.php',$center['site_name'],'系統管理',true);
-$view->addScript("https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js");
-$view->addScript("../include/js/channel.js");
+$view = new View('theme/admin_default.html','admin/nav.php','',$center['site_name'],'系統管理',true);
 ?>
-<script>
-$(function(){
-	$.ajax({
-		url: $('#check').attr('href'),
-		dataType: 'jsonp',
-		success: function(data){
-			if(!data.error){
-				if(!data.latest){
-					$('#results').html(data.msg);
-				}
-				else {
-					$('#results').text(data.msg);
-					$('#link').html(data.link);
-				}
-			}
-			else {
-				$('#results').html(data.msg);
-			}
-		}
-	});
-});
-</script>
-<div class="main">
-	<?php if((isset($_COOKIE['login']))&&(isset($_GET['login']))){?>
-		<div class="prompt">登入成功！</div>
-	<?php } ?>
-	<h2>系統管理</h2>
-	歡迎來到系統管理介面！<br>
-	您目前所使用的 Secret會員系統版本：<?php echo sc_ver(); ?>
-	<div id="results" class="well" style="margin: 1em auto; width: 50%; text-align: center;">
-		<a href="http://center.gdsecret.com/update.php?json&ver=<?php echo sc_ver(); ?>&url=<?php echo 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']; ?>" id="check">檢查更新</a>
+<h2 class="page-header">系統管理</h2>
+<p>歡迎來到系統管理介面！</p>
+<div class="row">
+	<div class="col-md-6">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">系統</h3>
+			</div>
+			<div class="panel-body">
+				目前版本：Secret Center <?php echo sc_ver(); ?>&nbsp;&nbsp;<span id="ver_check"></span>
+			</div>
+		</div>
 	</div>
-	<div id="link"></div>
+	<div class="col-md-6">
+		<div class="panel panel-warning">
+			<div class="panel-heading">
+				<h3 class="panel-title">會員</h3>
+			</div>
+			<div class="panel-body">
+				目前會員數量：
+				<?php echo implode('',$SQL->query("SELECT COUNT(*) FROM `member`")->fetch_assoc()); ?> 人
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="panel panel-success">
+			<div class="panel-heading">
+				<h3 class="panel-title">論壇</h3>
+			</div>
+			<div class="panel-body">
+				目前帖子總數：
+				<?php echo implode('',$SQL->query("SELECT COUNT(*) FROM `forum`")->fetch_assoc()); ?> 篇
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				<h3 class="panel-title">通知</h3>
+			</div>
+			<div class="panel-body">
+				目前通知數量：
+				<?php echo implode('',$SQL->query("SELECT COUNT(*) FROM `notice`")->fetch_assoc()); ?> 筆
+			</div>
+		</div>
+	</div>
 </div>
 <?php
 $view->render();

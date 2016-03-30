@@ -1,4 +1,36 @@
 <?php
+/*
+<Secret Center, open source member management system>
+Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Also add information on how to contact you by electronic and paper mail.
+
+  If your software can interact with users remotely through a computer
+network, you should also make sure that it provides a way for users to
+get its source.  For example, if your program is a web application, its
+interface could display a "Source" link that leads users to an archive
+of the code.  There are many ways you could offer source, and different
+solutions will be better for different programs; see section 13 for the
+specific requirements.
+
+  You should also get your employer (if you work as a programmer) or school,
+if any, to sign a "copyright disclaimer" for the program, if necessary.
+For more information on this, and how to apply and follow the GNU AGPL, see
+<http://www.gnu.org/licenses/>.
+*/
+
 require_once('Connections/SQL.php');
 require_once('config.php');
 require_once('include/view.php');
@@ -8,8 +40,8 @@ if(!isset($_SESSION['Center_Username'])){
 	exit;
 }
 
-if(!isset($_GET['id']) || $_GET['id'] == ''){
-	header("Location: forum.php");
+if((!isset($_GET['id']))or($_GET['id']=='')){
+    header("Location: forum.php");
 	exit;
 }
 
@@ -19,34 +51,31 @@ if(isset($_GET['post'])){
 		exit;
 	}
 	
-	$post = $SQL->query("SELECT * FROM forum WHERE id = '%d' AND posted = '%s'",array($_GET['id'],$_SESSION['Center_Username']));
-	$post_row = $post->fetch_assoc();
-	$post_num_rows = $post->num_rows;
+	$_post = sc_get_result("SELECT * FROM `forum` WHERE `id` = '%d' AND `author` = '%d'",array($_GET['id'],$_SESSION['Center_Id']));
 
-	$_block_query=$SQL->query("SELECT * FROM `forum_block` ORDER BY `position` ASC");
-	$_block =$_block_query->fetch_assoc();
+	$_block = sc_get_result("SELECT * FROM `forum_block` ORDER BY `position` ASC");
 	
-	if($post_num_rows<=0){
+	if($_post['num_rows']<=0){
 		header("Location: forum.php");
 		exit;
 	}
 	
-	if(isset($_POST['title']) && isset($_POST['post']) && trim(htmlspecialchars($_POST['title'])) != '' && trim(strip_tags($_POST['post']),"&nbsp;") != '') {
+	if(isset($_POST['title']) && isset($_POST['content']) && trim(htmlspecialchars($_POST['title'])) != '' && trim(strip_tags($_POST['content']),"&nbsp;") != '') {
 		
-		$_block_auth = $SQL->query("SELECT * FROM `forum_block` WHERE id = '%d'",array(abs($_POST['block'])))->num_rows;
-		if($_block_auth<0){
+		$_block_auth = $SQL->query("SELECT * FROM `forum_block` WHERE `id` = '%d'",array(abs($_POST['block'])))->num_rows;
+		if($_block_auth<=0){
 			die;
 		}
 		
-		$SQL->query("UPDATE forum SET `post_title` = '%s', `post` = '%s',`block`='%d',`level`='%d' WHERE `id` = '%d' AND `posted` = '%s'",array(
+		$SQL->query("UPDATE `forum` SET `title` = '%s', `content` = '%s',`block`='%d',`level`='%d' WHERE `id` = '%d' AND `author` = '%d'",array(
 			htmlspecialchars($_POST['title']),
-			sc_xss_filter($_POST['post']),
+			sc_xss_filter($_POST['content']),
 			abs($_POST['block']),
 			abs($_POST['level']),
 			$_GET['id'],
-			$_SESSION['Center_Username']
+			$_SESSION['Center_Id']
 		));
-		header("Location: forumview.php?editok&id=".$post_row['id']);
+		header("Location: forumview.php?editok&id=".$_post['row']['id']);
 	}
 	
 }elseif(isset($_GET['reply'])) {
@@ -55,22 +84,20 @@ if(isset($_GET['post'])){
 		exit;
 	}
 	
-	$reply = $SQL->query("SELECT * FROM `forum_reply` WHERE `id` = '%d' AND `posted`='%s'",array($_GET['id'],$_SESSION['Center_Username']));
-	$reply_row = $reply->fetch_assoc();
-	$reply_num_rows = $reply->num_rows;
+	$_reply = sc_get_result("SELECT * FROM `forum_reply` WHERE `id` = '%d' AND `author` = '%d'",array($_GET['id'],$_SESSION['Center_Id']));
 
-	if($reply_num_rows<=0){
+	if($_reply['num_rows']<=0){
 		header("Location: forum.php");
 		exit;
 	}
 	
-	if(isset($_POST['reply']) && trim(strip_tags($_POST['reply']),"&nbsp;") != '') {
-	$SQL->query("UPDATE `forum_reply` SET `reply` = '%s' WHERE `id` = '%d' AND `posted` = '%s'",array(
-		sc_xss_filter($_POST['reply']),
-		$_GET['id'],
-		$_SESSION['Center_Username']
-	));
-	header("Location: forumview.php?id=".$reply_row['post']);
+	if(isset($_POST['content']) && trim(strip_tags($_POST['content']),"&nbsp;") != '') {
+		$SQL->query("UPDATE `forum_reply` SET `content` = '%s' WHERE `id` = '%d' AND `author` = '%d'",array(
+			sc_xss_filter($_POST['content']),
+			$_GET['id'],
+			$_SESSION['Center_Id']
+		));
+		header("Location: forumview.php?editok&id=".$_reply['row']['post_id']);
 	}
 	
 }else{
@@ -79,80 +106,64 @@ if(isset($_GET['post'])){
 }
 
 
-$view = new View('view/new_theme.html','include/nav.php',$center['site_name'],'論壇編輯');
-$view->addCSS("include/js/cleditor/jquery.cleditor.css");
-$view->addScript("https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js");
-$view->addScript("include/js/cleditor/jquery.cleditor.js");
-$view->addScript("include/js/cleditor/jquery.cleditor.icon.js");
-$view->addScript("include/js/cleditor/jquery.cleditor.table.js");
-$view->addScript("include/js/cleditor/jquery.cleditor.serverImg.js");
-$view->addScript("include/js/jquery.validate.js");
-$view->addScript("include/js/channel.js");
+$view = new View('include/theme/default.html','include/nav.php',NULL,$center['site_name'],'論壇編輯');
 $view->addScript("include/js/notice.js");
+$view->addCSS("include/js/cleditor/jquery.cleditor.css");
+$view->addScript("include/js/cleditor/jquery.cleditor.min.js");
+$view->addScript("include/js/cleditor/jquery.cleditor.table.js");
 ?>
-<div class="main">
-<?php if(isset($_GET['reply'])){ ?>
-<script type="text/javascript">
+<script>
 $(function(){
-	$("#reply").cleditor({width:'99%', height:300, useCSS:true})[0].focus();
-	$("#form1").validate({
-		rules:{
-			reply:{required:true}
-		}
-	});
+	$("#cleditor").cleditor({width:'99%', height:300, useCSS:true})[0].focus();
 });
 </script>
+<?php if(isset($_GET['reply'])){ ?>
 <h2>編輯回覆</h2>
-<form action="forumedit.php?reply&id=<?php echo $_GET['id']; ?>" method="POST" name="form1">
-	<div class="controls">
-		<label for="reply">回覆內容：</label>
+<form action="forumedit.php?reply&id=<?php echo $_reply['row']['id']; ?>" method="POST">
+	<div class="form-group">
+		<label for="content">回覆內容：</label>
+		<textarea id="cleditor" class="form-control" name="content" cols="65" rows="10" required="required"><?php echo sc_removal_escape_string($_reply['row']['content']); ?></textarea>
 	</div>
-	<div style="margin:auto;">
-		<textarea name="reply" cols="65" rows="10" id="reply" required="required"><?php echo removal_escape_string($reply_row['reply']); ?></textarea>
-	</div>
-	<p><input type="submit" name="button" class="btn btn-primary" value="編輯回覆" /></p>
+	<p><input name="button" class="btn btn-primary" type="submit" value="儲存"></p>
 </form>
 <?php } elseif(isset($_GET['post'])){ ?>
-<script type="text/javascript">
-$(function(){
-    $("#cleditor").cleditor({width:'99%', height:350, useCSS:true})[0].focus();
-	$("#form1").validate({
-		rules:{
-			title:{required:true},
-			post:{required:true}
-		}
-	});
-});
-</script>
 <h2>編輯帖子</h2>
-<form action="forumedit.php?post&id=<?php echo $_GET['id']; ?>" method="POST" name="form1">
-	<input name="title" class="input-block-level" type="text" value="<?php echo $post_row['post_title']; ?>" required="required" placeholder="標題">
-	<div class="controls controls-row">
-		<div class="span6">
-			<label class="control-label" for="block">區塊：</label>
-			<select class="input-xlarge" name="block" required="required">
-			<?php do{ ?>
-				<option value="<?php echo $_block['id']; ?>" <?php if($_block['id']==$post_row['block']){ ?>selected="selected"<?php } ?>>
-					<?php echo $_block['blockname']; ?>
-				</option>
-			<?php }while ($_block =  $_block_query->fetch_assoc()); ?>
-			</select>
+<form action="forumedit.php?post&id=<?php echo $_post['row']['id']; ?>" method="POST">
+	<div class="form-group">
+		<input class="form-control" name="title" type="text" placeholder="標題" required="required" value="<?php echo $_post['row']['title']; ?>">
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="form-group">
+				<label for="block">區塊：</label>
+				<select class="form-control" name="block" required="required">
+				<?php do{ ?>
+					<option value="<?php echo $_block['row']['id']; ?>" <?php if($_block['row']['id']==$_post['row']['block']){ ?>selected="selected"<?php } ?>>
+						<?php echo $_block['row']['blockname']; ?>
+					</option>
+				<?php }while ($_block['row'] = $_block['query']->fetch_assoc());  ?>
+				</select>
+			</div>
 		</div>
-		<div class="span6">
-			<label for="level">權限：</label>
-			<select name="level" id="level" class="input-xlarge">
-			<?php foreach(sc_member_level_array() as $key=>$value){if($key>0){ ?>
-				<option value="<?php echo $key; ?>" <?php if($key==$post_row['level']){ ?>selected="selected"<?php } ?>><?php echo $value; ?></option>
-			<?php }} ?>
-			</select>
+		<div class="col-md-6">
+			<div class="form-group">
+				<label for="level">權限：</label>
+				<select class="form-control" name="level" required="required">
+				<?php foreach(sc_member_level_array() as $key=>$value){if($key>0){ ?>
+					<option value="<?php echo $key; ?>" <?php if($key==$_post['row']['level']){ ?>selected="selected"<?php } ?>><?php echo $value; ?></option>
+				<?php }} ?>
+				</select>
+			</div>
 		</div>
 	</div>
-	<textarea id="cleditor" name="post" class="input-block-level" rows="10"><?php echo htmlspecialchars(removal_escape_string($post_row['post'])); ?></textarea>
+	<div class="form-group">
+		<textarea id="cleditor" name="content" rows="10" required="required">
+			<?php echo $_post['row']['content']; ?>
+		</textarea>
 	</div>
-	<p><input type="submit" name="button" class="btn btn-primary" value="編輯帖子" /></p>
+	<br><input name="button" class="btn btn-primary" type="submit" value="儲存">
 </form>
 <?php } ?>
-</div>
 <?php
 $view->render();
 ?>

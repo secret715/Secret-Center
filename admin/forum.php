@@ -207,6 +207,14 @@ $(function(){
 </form>
 <?php }else{ ?>
 <h2 class="page-header">論壇</h2>
+<form class="form-inline" method="POST" action="forum.php?newblock">
+	<div class="input-group">
+		<input class="form-control" name="blockname" type="text" placeholder="區塊名稱" required="required">
+		<span class="input-group-btn">
+			<input type="submit" class="btn btn-success" value="新增區塊">
+		</span>
+	</div>
+</form>
 <?php if($_forum['num_rows'] == 0){ ?>
 <div class="alert alert-danger">沒有區塊！</div>
 <?php }else{ ?>
@@ -219,14 +227,6 @@ $(function(){
 	});
 });
 </script>
-<form class="form-inline" method="POST" action="forum.php?newblock">
-	<div class="input-group">
-		<input class="form-control" name="blockname" type="text" placeholder="區塊名稱" required="required">
-		<span class="input-group-btn">
-			<input type="submit" class="btn btn-success" value="新增區塊">
-		</span>
-	</div>
-</form>
 <table class="table table-striped">
 	<thead>
 		<tr>
@@ -259,7 +259,9 @@ $(function(){
 			</td>
 			<td>
 				<a class="btn btn-info" href="forum.php?edit=<?php echo $_forum['row']['id']; ?>">編輯</a>
+				<?php if($_forum['num_rows']>1){ ?>
 				<a class="btn btn-danger" href="forum.php?delblock=<?php echo $_forum['row']['id']; ?>">刪除</a>
+				<?php } ?>
 			</td>
 		</tr>
 		<?php }while($_forum['row'] = $_forum['query']->fetch_assoc()); ?>

@@ -43,9 +43,13 @@ Bootstrap v3.3.6
 授權：MIT License  
 官方網站：http://getbootstrap.com/
 
-CLEditor
+CLEditor v1.4.5
 授權：MIT License  
 官方網站：http://premiumsoftware.net/cleditor/
+
+HTML Purifier v4.7.0
+授權：LGPL v2.1+
+官方網站：http://htmlpurifier.org/
 
 -----------------------------------------------
 
@@ -73,3 +77,15 @@ Secret Center 9.0 (3月30日) 更新資訊
 
 後台更新：
 　　◎增加更多網站樣式設定
+
+-----------------------------------------------
+
+Secret Center 9.0.1 (5月8日) 更新資訊
+
+主要更新：
+　　◎修正全新安裝時未新增論壇區塊的錯誤
+
+
+後台更新：
+　　◎修正無論壇區塊時新增區塊介面消失的Bug
+　　◎當只剩一個論壇區塊時會隱藏刪除按鈕

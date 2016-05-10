@@ -32,7 +32,7 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 */
 
 function sc_ver(){
-	return '9.0';
+	return '9.0.1';
 }
 
 function sc_keygen($_value=''){
@@ -64,7 +64,7 @@ function sc_login($_username,$_password){
 		if ($login->num_rows > 0) {
 			$info = $login->fetch_assoc();
 			
-			$last_login= $SQL->query("UPDATE `member` SET `last_login` = now() WHERE `username` = '%s'",array($info['username']));
+			$SQL->query("UPDATE `member` SET `last_login` = now() WHERE `username` = '%s'",array($info['username']));
 			
 			$_SESSION['Center_Username'] = strtolower($_username);
 			$_SESSION['Center_Id'] = $info['id'];
@@ -105,7 +105,7 @@ function sc_register($_username,$_password,$_email,$_web_site='',$_level=1){
 				exit;
 			}
 			
-			$add_user = $SQL->query("INSERT INTO `member` (`username`, `password`, `email`, `web_site`, `avatar`, `rekey`, `level` , `joined` ,`last_login`) VALUES ('%s', '%s', '%s', '%s', 'default.png', '%s', '%d', now(), now())",array(
+			$SQL->query("INSERT INTO `member` (`username`, `password`, `email`, `web_site`, `avatar`, `rekey`, `level` , `joined` ,`last_login`) VALUES ('%s', '%s', '%s', '%s', 'default.png', '%s', '%d', now(), now())",array(
 				sc_namefilter($_username),
 				sc_password($_password,$_username),
 				$_email,

@@ -132,7 +132,7 @@ if($center['register'] == 1){
 	</div>
 </form>
 <?php } else { ?>
-	<div class="alert alert-error">目前關閉註冊！</div>
+	<div class="alert alert-danger">目前關閉註冊！</div>
 <?php } ?>
 <?php
 	$view->render();

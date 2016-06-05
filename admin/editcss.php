@@ -59,10 +59,10 @@ if(isset($_POST['body_font-size'])){
 	$config='../include/admin/cssconfig.php';
 	$config_sample='../include/admin/cssconfig-sample.php';
 	
-	$put_css = vsprintf(str_replace('%;','@',file_get_contents($_css_sample)),$_put_array);
+	$put_css = vsprintf(str_replace('%;','`',file_get_contents($_css_sample)),$_put_array);
 	$put_config = vsprintf(file_get_contents($config_sample),$_put_array);
 	
-	file_put_contents($_css,str_replace('@','%;',$put_css));
+	file_put_contents($_css,str_replace('`','%;',$put_css));
 	file_put_contents($config,$put_config);
 	
 	$_GET['ok']=true;

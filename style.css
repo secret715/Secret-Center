@@ -189,7 +189,7 @@ form .captcha {
 }
 /*覆蓋BS 3的CSS 結束*/
 
-%;media screen and (max-width:768px){
+@media screen and (max-width:768px){
 	#main{
 		width:100%;
 		-moz-box-sizing:border-box;

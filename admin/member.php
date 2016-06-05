@@ -219,7 +219,7 @@ $(function(){
 <div>
 <?php
 $_all_nav=sc_get_result("SELECT COUNT(*) FROM `member`");
-echo sc_page_pagination('member.php',@$_GET['page'],implode('',$_all_nav['row']),$center['forum']['limit']);
+echo sc_page_pagination('member.php',@$_GET['page'],implode('',$_all_nav['row']),30);
 ?>
 </div>
 <?php } ?>

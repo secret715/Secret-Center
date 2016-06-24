@@ -32,7 +32,7 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 */
 
 function sc_ver(){
-	return '9.0.1';
+	return '9.0.2';
 }
 
 function sc_keygen($_value=''){

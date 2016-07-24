@@ -48,5 +48,5 @@ Secret Center
 
 
 ***
-Secret Center 由 Secret Center 開發團隊 (http://center.gdsecret.net/#team) 製作
+Secret Center 由 [Secret Center 開發團隊] (http://center.gdsecret.net/#team) 製作
 使用 GNU AFFERO GENERAL PUBLIC LICENSE 3.0 (AGPL 3.0) 授權。

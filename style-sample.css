@@ -100,7 +100,9 @@ form .captcha {
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 25%;
+	width: 25vh;
+	min-width:270px;
+	max-width:360px;
 	background: #fff;
 	color: #000;
 	-webkit-border-radius: 0.25em;
@@ -190,10 +192,29 @@ form .captcha {
 /*覆蓋BS 3的CSS 結束*/
 
 @media screen and (max-width:768px){
+	body {
+		padding-top: 50px;
+	}
+	footer{
+		margin-top:1em;
+		padding-top:1em;
+		clear:both;
+	}
 	#main{
 		width:100%;
 		-moz-box-sizing:border-box;
 		-webkit-box-sizing:border-box;
 		box-sizing:border-box;
+		border-radius:0;
+		padding:1em;
+	}
+	#main .content{
+		min-height:calc(100vh - 50px - 6em);
+	}
+	#chat .msg-panel{
+		max-height: 50vh;
+	}
+	.avatar{
+		width:40px;
 	}
 }

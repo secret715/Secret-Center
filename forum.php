@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -96,25 +96,25 @@ $view->addScript("include/js/notice.js");
 <?php }elseif(isset($_GET['captcha'])){ ?>
 	<div class="alert alert-danger">請檢查驗證碼！</div>
 <?php }elseif(isset($_GET['banned'])){ ?>
-	<div class="alert alert-danger">您被禁言無法發帖！</div>
+	<div class="alert alert-danger">您被禁言無法發文！</div>
 <?php }elseif(isset($_GET['level'])){ ?>
 	<div class="alert alert-danger">權限不足！</div>
 <?php }
 if(isset($_GET['newpost'])) {
-$view->addCSS("include/js/cleditor/jquery.cleditor.css");
-$view->addScript("include/js/cleditor/jquery.cleditor.min.js");
-$view->addScript("include/js/cleditor/jquery.cleditor.table.js");
+$view->addCSS("include/js/summernote/summernote.css");
+$view->addScript("include/js/summernote/summernote.min.js");
+$view->addScript("include/js/summernote/lang/summernote-zh-TW.min.js");
 ?>
 <script>
 $(function(){
-    $("#cleditor").cleditor({width:'99%', height:350, useCSS:true})[0].focus();
+	$("#summernote").summernote({width:'99%', height:300, focus: true, lang: 'zh-TW'});
 	$('.captcha').on('click', function(e){
 		e.preventDefault();
 		$(this).attr('src', 'include/captcha.php?_=' + (new Date).getTime());
 	});
 });
 </script>
-<h2 class="page-header">發表帖子</h2>
+<h2 class="page-header">發表文章</h2>
 <form action="forum.php?newpost" method="POST">
 	<div class="form-group">
 		<input class="form-control" name="title" type="text" placeholder="標題" required="required">
@@ -144,7 +144,7 @@ $(function(){
 		</div>
 	</div>
 	<div class="form-group">
-		<textarea id="cleditor" name="content" rows="10" required="required">
+		<textarea id="summernote" name="content" rows="10" required="required">
 			<?php
 			if(isset($_COOKIE['content'])){
 				echo $_COOKIE['content'];
@@ -168,13 +168,13 @@ $(function(){
 	<li class="active"><a href="forum.php?fid=<?php echo $_block['row']['id']; ?>"><?php echo $_block['row']['blockname']; ?></a></li>
 </ul>
 <div class="row">
-	<div class="col-md-8">
-		<h2>
+	<div class="col-md-9 col-sm-8">
+		<h2 class="page-header">
 			<?php echo $_block['row']['blockname']; ?>
-			<a href="forum.php?block=<?php echo $_block['row']['id']; ?>&newpost" class="btn btn-primary btn-xs">發表帖子</a>
+			<a href="forum.php?block=<?php echo $_block['row']['id']; ?>&newpost" class="btn btn-primary btn-xs">發表文章</a>
 		</h2>
 	</div>
-	<div class="col-md-4 text-right">
+	<div class="col-md-3 col-sm-4 text-right">
 		<form id="search" class="form-inline" method="GET" action="forumsearch.php">
 			<div class="input-group">
 				<input id="q" class="form-control" name="q" type="text" class="search-query" required="required">
@@ -186,54 +186,56 @@ $(function(){
 	</div>
 </div>
 <?php if($_forum['num_rows'] == 0){ ?>
-<div class="alert alert-danger">沒有帖子！</div>
+<div class="alert alert-danger">沒有文章！</div>
 <?php }else{ ?>
-<table class="table table-striped table-hover">
-	<thead>
-		<tr>
-			<th>帖子</th>
-			<th>作者/發表時間</th>
-			<th>回覆</th>
-			<th>最後回覆</th>
-		</tr>
-	</thead>
-	<tbody>
-		<?php do{
-			$_reply = sc_get_result("SELECT * FROM `forum_reply` WHERE `post_id`='%d' ORDER BY `mktime` DESC",array($_forum['row']['id']));
-			$_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_forum['row']['author']));
-			$_reply_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_reply['row']['author']));
-		?>
-		<tr>
-			<td>
-				<a href="forumview.php?id=<?php echo $_forum['row']['id']; ?>">
-					<?php echo $_forum['row']['title']; ?>
-				</a>
-				<?php if($_forum['row']['level']>1){ ?>
-				&nbsp;&nbsp;
-				<span class="label label-default"><?php echo sc_member_level($_forum['row']['level']); ?></span>
-				<?php } ?>
-			</td>
-			<td style="line-height:0.8em;font-size:92%;">
-				<?php echo $_author['row']['username']; ?>
-				<br><span style="font-size:66%;"><?php echo date('Y-m-d H:i',strtotime($_forum['row']['mktime'])); ?></span>
-			</td>
-			<td>
-				<?php echo $_reply['num_rows']; ?>
-			</td>
-			<td>
-				<?php
-					if($_reply['num_rows']>0){
-						echo '<div style="line-height:0.8em;font-size:92%;">'.$_reply_author['row']['username'].'<br><span style="font-size:66%;">'.date('Y-m-d H:i',strtotime($_reply['row']['mktime'])).'</span></div>';
-					}else{
-						echo '無';
-					}
-				?>
-				
-			</td>
-		</tr>
-		<?php }while ($_forum['row'] = $_forum['query']->fetch_assoc()); ?>
-	</tbody>
-</table>
+<div class="table-responsive">
+	<table class="table table-striped table-hover">
+		<thead>
+			<tr>
+				<th>文章</th>
+				<th>作者/發表時間</th>
+				<th>回覆</th>
+				<th>最後回覆</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php do{
+				$_reply = sc_get_result("SELECT * FROM `forum_reply` WHERE `post_id`='%d' ORDER BY `mktime` DESC",array($_forum['row']['id']));
+				$_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_forum['row']['author']));
+				$_reply_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_reply['row']['author']));
+			?>
+			<tr>
+				<td>
+					<a href="forumview.php?id=<?php echo $_forum['row']['id']; ?>">
+						<?php echo $_forum['row']['title']; ?>
+					</a>
+					<?php if($_forum['row']['level']>1){ ?>
+					&nbsp;&nbsp;
+					<span class="label label-default"><?php echo sc_member_level($_forum['row']['level']); ?></span>
+					<?php } ?>
+				</td>
+				<td style="line-height:0.8em;font-size:92%;">
+					<?php echo $_author['row']['username']; ?>
+					<br><span style="font-size:66%;"><?php echo date('Y-m-d H:i',strtotime($_forum['row']['mktime'])); ?></span>
+				</td>
+				<td>
+					<?php echo $_reply['num_rows']; ?>
+				</td>
+				<td>
+					<?php
+						if($_reply['num_rows']>0){
+							echo '<div style="line-height:0.8em;font-size:92%;">'.$_reply_author['row']['username'].'<br><span style="font-size:66%;">'.date('Y-m-d H:i',strtotime($_reply['row']['mktime'])).'</span></div>';
+						}else{
+							echo '無';
+						}
+					?>
+					
+				</td>
+			</tr>
+			<?php }while ($_forum['row'] = $_forum['query']->fetch_assoc()); ?>
+		</tbody>
+	</table>
+</div>
 <?php
 	$_all_forum=sc_get_result("SELECT COUNT(*) FROM `forum` WHERE `block`='%d'",array($_block['row']['id']));
 	echo sc_page_pagination('forum.php',@$_GET['page'],implode('',$_all_forum['row']),$center['forum']['limit'],'&fid='.$_block['row']['id']);
@@ -242,12 +244,13 @@ $(function(){
 <?php if($_forum['num_rows'] == 0){ ?>
 <div class="alert alert-danger">沒有區塊！</div>
 <?php }else{ ?>
+<div class="table-responsive">
 	<table class="table table-striped">
 		<thead>
 			<tr>
 				<th>區塊</th>
-				<th>帖數</th>
-				<th>最後發帖</th>
+				<th>文章數</th>
+				<th>最後發文</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -273,6 +276,7 @@ $(function(){
 			<?php }while($_forum['row'] = $_forum['query']->fetch_assoc()); ?>
 		</tbody>
     </table>
+</div>
 <?php } ?>
 <?php } ?>
 <?php

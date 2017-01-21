@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -168,7 +168,7 @@ $(function(){
 	<fieldset>
 		<legend>論壇</legend>
 		<div class="form-group">
-			<label class="col-sm-2 control-label" for="forum_captcha">發帖驗證碼：</label>
+			<label class="col-sm-2 control-label" for="forum_captcha">發文驗證碼：</label>
 			<div class="col-sm-6">
 				<label class="checkbox-inline">
 					<input name="forum_captcha" type="checkbox" value="1"<?php if($center['forum']['captcha']){echo ' checked="checked"';} ?>> 開啟
@@ -184,7 +184,7 @@ $(function(){
 				</div>
 			</div>
 			<div class="col-sm-4 help-block">
-				每頁所顯示的帖子/回覆數量
+				每頁所顯示的文章/回覆數量
 			</div>
 		</div>
 	</fieldset>

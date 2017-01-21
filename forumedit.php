@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -108,13 +108,13 @@ if(isset($_GET['post'])){
 
 $view = new View('include/theme/default.html','include/nav.php',NULL,$center['site_name'],'論壇編輯');
 $view->addScript("include/js/notice.js");
-$view->addCSS("include/js/cleditor/jquery.cleditor.css");
-$view->addScript("include/js/cleditor/jquery.cleditor.min.js");
-$view->addScript("include/js/cleditor/jquery.cleditor.table.js");
+$view->addCSS("include/js/summernote/summernote.css");
+$view->addScript("include/js/summernote/summernote.min.js");
+$view->addScript("include/js/summernote/lang/summernote-zh-TW.min.js");
 ?>
 <script>
 $(function(){
-	$("#cleditor").cleditor({width:'99%', height:300, useCSS:true})[0].focus();
+	$("#summernote").summernote({width:'99%', height:300, focus: true, lang: 'zh-TW'});
 });
 </script>
 <?php if(isset($_GET['reply'])){ ?>
@@ -122,12 +122,12 @@ $(function(){
 <form action="forumedit.php?reply&id=<?php echo $_reply['row']['id']; ?>" method="POST">
 	<div class="form-group">
 		<label for="content">回覆內容：</label>
-		<textarea id="cleditor" class="form-control" name="content" cols="65" rows="10" required="required"><?php echo sc_removal_escape_string($_reply['row']['content']); ?></textarea>
+		<textarea id="summernote" class="form-control" name="content" cols="65" rows="10" required="required"><?php echo sc_removal_escape_string($_reply['row']['content']); ?></textarea>
 	</div>
 	<p><input name="button" class="btn btn-primary" type="submit" value="儲存"></p>
 </form>
 <?php } elseif(isset($_GET['post'])){ ?>
-<h2>編輯帖子</h2>
+<h2>編輯文章</h2>
 <form action="forumedit.php?post&id=<?php echo $_post['row']['id']; ?>" method="POST">
 	<div class="form-group">
 		<input class="form-control" name="title" type="text" placeholder="標題" required="required" value="<?php echo $_post['row']['title']; ?>">
@@ -157,7 +157,7 @@ $(function(){
 		</div>
 	</div>
 	<div class="form-group">
-		<textarea id="cleditor" name="content" rows="10" required="required">
+		<textarea id="summernote" name="content" rows="10" required="required">
 			<?php echo $_post['row']['content']; ?>
 		</textarea>
 	</div>

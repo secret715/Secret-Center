@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -143,7 +143,7 @@ if($_step==4){
 			<tr>
 			  <td>PHP</td>
 			  <td>5.3</td>
-			  <td>5.3~5.6</td>
+			  <td>5.3~7</td>
 			  <td><?php check_php_version(5.3); ?></td>
 			</tr>
 			<tr>

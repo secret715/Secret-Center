@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -80,7 +80,7 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 				<h3 class="panel-title">論壇</h3>
 			</div>
 			<div class="panel-body">
-				目前帖子總數：
+				目前文章總數：
 				<?php echo implode('',$SQL->query("SELECT COUNT(*) FROM `forum`")->fetch_assoc()); ?> 篇
 			</div>
 		</div>

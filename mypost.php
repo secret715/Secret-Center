@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -52,20 +52,20 @@ if(isset($_GET['del'])&& abs($_GET['del'])!=''){
 
 $_mypost = sc_get_result("SELECT * FROM `forum` WHERE `author` = '%s' ORDER BY `id` DESC",array($_SESSION['Center_Id']));
 
-$view = new View('include/theme/default.html','include/nav.php',NULL,$center['site_name'],'我的帖子');
+$view = new View('include/theme/default.html','include/nav.php',NULL,$center['site_name'],'我的文章');
 $view->addScript("include/js/notice.js");
 ?>
 <?php if(isset($_GET['del'])){?>
 	<div class="alert alert-success">刪除成功！</div>
 <?php } ?>
-<h2 class="page-header">我的帖子</h2>
+<h2 class="page-header">我的文章</h2>
 <?php if($_mypost['num_rows'] == 0){ ?>
-	<div class="alert alert-success">沒有帖子！趕快去<a href="forum.php?newpost">發表帖子</a>吧。</div>
+	<div class="alert alert-success">沒有文章！趕快去<a href="forum.php?newpost">發表文章</a>吧。</div>
 <?php }else{ ?>
 <table class="table table-striped table-hover">
 	<thead>
 		<tr>
-			<th>帖子</th>
+			<th>文章</th>
 			<th>區塊</th>
 			<th>回覆</th>
 			<th>最後回覆</th>

@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -37,8 +37,8 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 		<a href="forum.php" data-target="#" data-toggle="dropdown">論壇 ▼</a>
 		<ul class="dropdown-menu">
 			<li><a href="forum.php">論壇</a></li>
-			<li><a href="forum.php?newpost">發表帖子</a></li>
-			<li><a href="mypost.php">我的帖子</a></li>
+			<li><a href="forum.php?newpost">發表文章</a></li>
+			<li><a href="mypost.php">我的文章</a></li>
 		</ul>
 	</li>
 	<?php if($_SESSION['Center_UserGroup']==9){?>

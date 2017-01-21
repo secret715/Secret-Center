@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -42,16 +42,16 @@ if(!isset($_COOKIE['login']) && isset($_SESSION['Center_Username'])){//如果已
 global $center;
 
 date_default_timezone_set("Asia/Taipei"); //時區設定
-$center['site_name'] = "Secret Center 9.0"; //網站名稱
+$center['site_name'] = "Secret Center 9.1"; //網站名稱
 $center['register'] = "1"; //是否開啟註冊，0為關閉，1為開啟
 $center['mail'] = "admin@example.com"; //網站Email，用於重設密碼信件
 
-$center['chat']['public'] = "1"; //聊天室_發言間隔 單位 秒
-$center['avatar']['max_size'] = "100";//頭貼_檔案大小限制 單位 KB
+$center['chat']['public'] = "3"; //聊天室_發言間隔 單位 秒
+$center['avatar']['max_size'] = "1500";//頭貼_檔案大小限制 單位 KB
 $center['avatar']['compress'] = "1";//頭貼_是否開啟壓縮，0為關閉，1為開啟
 $center['avatar']['quality'] = "80";//頭貼_壓縮品質設定 0~100
 $center['forum']['captcha']="0"; //論壇_驗證碼是否開啟，0為關閉，1為開啟
-$center['forum']['limit']="30"; //論壇_帖子&回覆每頁顯示數量
+$center['forum']['limit']="30"; //論壇_文章&回覆每頁顯示數量
 $center['member']['message']=
 <<<MSG
 歡迎使用 Secret Center ！

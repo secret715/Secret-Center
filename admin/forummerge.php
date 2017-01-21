@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,7 @@ $_block=sc_get_result("SELECT * FROM `forum_block` ORDER BY `position` ASC");
 $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_name'],'區塊合併',true);
 ?>
 <h2 class="page-header">區塊合併</h2>
-<p>轉移舊區塊的所有帖子，並同時刪除舊區塊</p>
+<p>轉移舊區塊的所有文章，並同時刪除舊區塊</p>
 <form class="form-xs" action="forummerge.php" method="POST">
 		<div class="form-group">
 			將舊區塊

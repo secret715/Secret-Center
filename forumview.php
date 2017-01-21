@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -68,7 +68,7 @@ if((isset($_GET['reply']))&& isset($_POST['content']) && trim($_POST['content'],
 	if($_SESSION['Center_Id']!=$_post['row']['author']){
 		 sc_add_notice(
 			sc_get_headurl().'forumview.php?id='.$_post['row']['id'],
-			$_SESSION['Center_Username'].'在您的帖子中發表回覆',
+			$_SESSION['Center_Username'].'在您的文章中發表回覆',
 			$_SESSION['Center_Id'],
 			$_post['row']['author']
 		);
@@ -103,23 +103,22 @@ $view->addScript("include/js/notice.js");
 <?php }elseif(isset($_GET['editok'])){ ?>
 	<div class="alert alert-success">編輯成功！</div>
 <?php }elseif(isset($_GET['banned'])){ ?>
-	<div class="alert alert-danger">您被禁言無法發帖！</div>
+	<div class="alert alert-danger">您被禁言無法發文！</div>
 <?php }
 if(isset($_GET['reply'])){
-$view->addCSS("include/js/cleditor/jquery.cleditor.css");
-$view->addScript("include/js/cleditor/jquery.cleditor.min.js");
-$view->addScript("include/js/cleditor/jquery.cleditor.icon.js");
-$view->addScript("include/js/cleditor/jquery.cleditor.table.js");
+$view->addCSS("include/js/summernote/summernote.css");
+$view->addScript("include/js/summernote/summernote.min.js");
+$view->addScript("include/js/summernote/lang/summernote-zh-TW.min.js");
 ?>
 <script>
 $(function(){
-	$("#cleditor").cleditor({width:'99%', height:300, useCSS:true})[0].focus();
+	$("#summernote").summernote({width:'99%', height:300, focus: true, lang: 'zh-TW'});
 });
 </script>
 <form action="forumview.php?id=<?php echo $_GET['id']; ?>&reply" method="POST" name="form1">
 	<div class="form-group">
 		<label for="content">回覆內容：</label>
-		<textarea id="cleditor" class="form-control" name="content" cols="65" rows="10" required="required"></textarea>
+		<textarea id="summernote" class="form-control" name="content" cols="65" rows="10" required="required"></textarea>
 	</div>
 	<p><input type="submit" name="button" class="btn btn-primary" value="回覆"></p>
 </form>
@@ -175,8 +174,8 @@ if($_reply['num_rows']>0){
 		<li>
 			<img src="<?php echo sc_avatar_url($_reply['row']['author']); ?>" class="avatar">
 		</li>
-		<li style="font-size:130%;"><?php echo $_reply_author['row']['username']; ?></li>
-		<li>發表於&nbsp;<?php echo $_reply['row']['mktime']; ?></li>
+		<li style="font-size:110%;"><?php echo $_reply_author['row']['username']; ?></li>
+		<li>回覆於&nbsp;<?php echo $_reply['row']['mktime']; ?></li>
 		<li><?php echo $_floor; ?>&nbsp;樓</li>
 		<?php if($_reply['row']['author']==$_SESSION['Center_Id']){ ?>
 		<li>

@@ -1,38 +1,6 @@
-<?php
-/*
-<Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-  If your software can interact with users remotely through a computer
-network, you should also make sure that it provides a way for users to
-get its source.  For example, if your program is a web application, its
-interface could display a "Source" link that leads users to an archive
-of the code.  There are many ways you could offer source, and different
-solutions will be better for different programs; see section 13 for the
-specific requirements.
-
-  You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary.
-For more information on this, and how to apply and follow the GNU AGPL, see
-<http://www.gnu.org/licenses/>.
-*/
-
+﻿<?php
 function sc_ver(){
-	return '9.0.1';
+	return '9.1';
 }
 
 function sc_keygen($_value=''){
@@ -128,11 +96,8 @@ function sc_get_result($_query,$_value=array()){
 	$_result['query'] = $SQL->query($_query,$_value);
 	$_result['row'] = $_result['query']->fetch_assoc();
 	$_result['num_rows'] = $_result['query']->num_rows;
-	if($_result['num_rows']>0){
-		return $_result;
-	}else{
-		return -1;
-	}
+	
+	return $_result;
 }
 
 function sc_member_level_array(){
@@ -174,7 +139,13 @@ function sc_add_notice($_url,$_content,$_send_from,$_send_to){
 
 function sc_xss_filter($_content){
 	require_once('htmlpurifier/HTMLPurifier.auto.php');
-    $purifier = new HTMLPurifier();
+    $config = HTMLPurifier_Config::createDefault();
+	//$config->set('HTML.AllowedAttributes', array('iframe.src'));
+	$config->set('HTML.SafeIframe', true);
+	$config->set('URI.SafeIframeRegexp', '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%');
+	$config->set('URI.AllowedSchemes', array('data' => true,'http' => true,'https' => true,'mailto' => true,'ftp' => true,'nntp' => true,'news' => true,'tel' => true));
+	
+	$purifier = new HTMLPurifier($config);
     $filterContent = $purifier->purify($_content);
     return $filterContent;
 }
@@ -219,7 +190,7 @@ function sc_avatar_url($_id,$_only_file_name=false){
 	}
 }
 
-function sc_avatar_compress($_image,$_image_type,$_new_image_file,$_new_height,$_new_image_quality=75){
+function sc_img_compress($_image,$_image_type,$_new_image_file,$_new_height,$_new_image_quality=75){
 	switch ($_image_type){
 		case 'jpg':
 		case 'jpeg':
@@ -253,6 +224,44 @@ function sc_avatar_compress($_image,$_image_type,$_new_image_file,$_new_height,$
 		imagejpeg($_origin_img, $_new_image_file, $_new_image_quality);//輸出JPG圖片
 		return true;
 	}
+}
+
+function sc_avatar_crop($_image,$_image_type,$_new_image_file,$_new_size,$_crop_position_x,$_crop_position_y,$_crop_position_w,$_crop_position_h,$_new_image_quality=75){
+	switch ($_image_type){
+		case 'jpg':
+		case 'jpeg':
+			$_origin_img = imagecreatefromjpeg($_image);
+			break;
+		case 'png':
+			$_origin_img = imagecreatefrompng($_image);
+			break;
+		case 'gif':
+			$_origin_img = imagecreatefromgif($_image);
+			break;
+		default:
+			return false;
+	}
+	
+	$_new_image = imagecreatetruecolor($_new_size, $_new_size);
+
+	if($_crop_position_w*$_crop_position_h<=0){
+		$_origin_width = imagesx($_origin_img);
+		$_origin_height = imagesy($_origin_img);
+		$_crop_position_x=0;
+		$_crop_position_y=0;
+		$_crop_position_w=$_origin_width;
+		$_crop_position_h=$_origin_height;
+	}
+	
+	//將原始照片縮小並複製到新的圖中
+	imagecopyresampled($_new_image, $_origin_img, 0, 0, $_crop_position_x, $_crop_position_y, $_new_size, $_new_size, $_crop_position_w, $_crop_position_h);
+	
+	if($_new_image_quality>0){
+		imagejpeg($_new_image, $_new_image_file, $_new_image_quality);//輸出JPG圖片
+	}else{
+		imagepng($_new_image, $_new_image_file);//輸出PNG圖片
+	}
+	return true;
 }
 function sc_deletedir($dir) {
     if ($handle = opendir($dir)) {

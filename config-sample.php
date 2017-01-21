@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -51,7 +51,7 @@ $center['avatar']['max_size'] = "%d";//頭貼_檔案大小限制 單位 KB
 $center['avatar']['compress'] = "%d";//頭貼_是否開啟壓縮，0為關閉，1為開啟
 $center['avatar']['quality'] = "%d";//頭貼_壓縮品質設定 0~100
 $center['forum']['captcha']="%d"; //論壇_驗證碼是否開啟，0為關閉，1為開啟
-$center['forum']['limit']="%d"; //論壇_帖子&回覆每頁顯示數量
+$center['forum']['limit']="%d"; //論壇_文章&回覆每頁顯示數量
 $center['member']['message']=
 <<<MSG
 %s

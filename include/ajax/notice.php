@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -92,7 +92,7 @@ if(isset($_POST['last_count'])){
 		}while($_result['row'] = $_result['query']->fetch_assoc());
 	}
 	
-	$SQL->query("UPDATE `notice` SET `status` = '1' WHERE `send_to`='%d' AND `status`='0' ORDER BY `mktime` DESC LIMIT 5",array($_SESSION_scratch['Center_Id']));
+	$SQL->query("UPDATE `notice` SET `status` = '1' WHERE `send_to`='%d' AND `status`='0'",array($_SESSION_scratch['Center_Id']));
 	header("Content-type: application/json");
 	echo json_encode($_data);
 }

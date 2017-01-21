@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -94,7 +94,7 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-3 control-label" for="author">發帖人：</label>
+		<label class="col-sm-3 control-label" for="author">作者：</label>
 		<div class="col-sm-9">
 			<input class="form-control" name="author" type="text">
 		</div>
@@ -153,12 +153,12 @@ if($_post['num_rows']<=0){ ?>
 	<?php echo mb_substr(strip_tags($_post['row']['content']),mb_stripos(strip_tags($_post['row']['content']),sc_xss_filter($_GET['q']),0,'UTF-8')-30,60,'UTF-8'); ?>...
 	</p>
 	<ul class="list-inline" style="font-size:90%;color:rgb(100,100,100);">
-		<?php if($_post['row']['level']>1){ ?>
-		<li><span class="label"><?php echo sc_member_level($_post['row']['level']); ?></span></li>
-		<?php } ?>
 		<li><?php echo $_author['row']['username']; ?></li>
 		<li><?php echo date('Y-m-d H:i',strtotime($_post['row']['mktime'])); ?></li>
 		<li><?php echo implode('',$_reply['row']); ?> 回覆</li>
+		<?php if($_post['row']['level']>1){ ?>
+		<li><span class="label label-default"><?php echo sc_member_level($_post['row']['level']); ?></span></li>
+		<?php } ?>
 	</ul>
 </div>
 <?php

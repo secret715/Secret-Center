@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -107,67 +107,69 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 </ul>
 <h2 class="page-header"><?php echo $_block['row']['blockname']; ?></h2>
 <?php if($_forum['num_rows'] == 0){ ?>
-<div class="alert alert-danger">沒有帖子！</div>
+<div class="alert alert-danger">沒有文章！</div>
 <?php }else{ ?>
 <script>
 $(function(){
 	$('input.btn.btn-danger').click(function(e){
-		if(!window.confirm("確定刪除所選取的帖子？\n\n提醒您，該帖子的回覆也會一並刪除！")){
+		if(!window.confirm("確定刪除所選取的文章？\n\n提醒您，該文章的回覆也會一並刪除！")){
 			e.preventDefault();
 		}
 	});
 });
 </script>
 <form action="forum.php?fid=<?php echo abs($_GET['fid']); ?>" method="POST">
-<table class="table table-striped table-hover">
-	<thead>
-		<tr>
-			<th width="30"><input class="btn btn-danger btn-sm" type="submit" value="刪除"></th>
-			<th>帖子</th>
-			<th>作者/發表時間</th>
-			<th>回覆</th>
-			<th>最後回覆</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		<?php do{
-			$_reply = sc_get_result("SELECT * FROM `forum_reply` WHERE `post_id`='%d' ORDER BY `mktime` DESC",array($_forum['row']['id']));
-			$_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_forum['row']['author']));
-			$_reply_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_reply['row']['author']));
-		?>
-		<tr>
-			<td><input name="del[]" type="checkbox" value="<?php echo $_forum['row']['id']; ?>" /></td>
-			<td>
-				<a href="forumview.php?id=<?php echo $_forum['row']['id']; ?>">
-					<?php echo $_forum['row']['title']; ?>
-				</a>
-				<?php if($_forum['row']['level']>1){ ?>
-				&nbsp;&nbsp;
-				<span class="label label-default"><?php echo sc_member_level($_forum['row']['level']); ?></span>
-				<?php } ?>
-			</td>
-			<td style="line-height:0.8em;font-size:92%;">
-				<?php echo $_author['row']['username']; ?>
-				<br><span style="font-size:66%;"><?php echo date('Y-m-d H:i',strtotime($_forum['row']['mktime'])); ?></span>
-			</td>
-			<td>
-				<?php echo $_reply['num_rows']; ?>
-			</td>
-			<td>
-				<?php
-					if($_reply['num_rows']>0){
-						echo '<div style="line-height:0.8em;font-size:92%;">'.$_reply_author['row']['username'].'<br><span style="font-size:66%;">'.date('Y-m-d H:i',strtotime($_reply['row']['mktime'])).'</span></div>';
-					}else{
-						echo '無';
-					}
+	<div class="table-responsive">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th width="30"><input class="btn btn-danger btn-sm" type="submit" value="刪除"></th>
+					<th>文章</th>
+					<th>作者/發表時間</th>
+					<th>回覆</th>
+					<th>最後回覆</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php do{
+					$_reply = sc_get_result("SELECT * FROM `forum_reply` WHERE `post_id`='%d' ORDER BY `mktime` DESC",array($_forum['row']['id']));
+					$_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_forum['row']['author']));
+					$_reply_author = sc_get_result("SELECT `username` FROM `member` WHERE `id` = '%d'",array($_reply['row']['author']));
 				?>
-				
-			</td>
-		</tr>
-		<?php }while ($_forum['row'] = $_forum['query']->fetch_assoc()); ?>
-	</tbody>
-</table>
+				<tr>
+					<td><input name="del[]" type="checkbox" value="<?php echo $_forum['row']['id']; ?>" /></td>
+					<td>
+						<a href="forumview.php?id=<?php echo $_forum['row']['id']; ?>">
+							<?php echo $_forum['row']['title']; ?>
+						</a>
+						<?php if($_forum['row']['level']>1){ ?>
+						&nbsp;&nbsp;
+						<span class="label label-default"><?php echo sc_member_level($_forum['row']['level']); ?></span>
+						<?php } ?>
+					</td>
+					<td style="line-height:0.8em;font-size:92%;">
+						<?php echo $_author['row']['username']; ?>
+						<br><span style="font-size:66%;"><?php echo date('Y-m-d H:i',strtotime($_forum['row']['mktime'])); ?></span>
+					</td>
+					<td>
+						<?php echo $_reply['num_rows']; ?>
+					</td>
+					<td>
+						<?php
+							if($_reply['num_rows']>0){
+								echo '<div style="line-height:0.8em;font-size:92%;">'.$_reply_author['row']['username'].'<br><span style="font-size:66%;">'.date('Y-m-d H:i',strtotime($_reply['row']['mktime'])).'</span></div>';
+							}else{
+								echo '無';
+							}
+						?>
+						
+					</td>
+				</tr>
+				<?php }while ($_forum['row'] = $_forum['query']->fetch_assoc()); ?>
+			</tbody>
+		</table>
+	</div>
 </form>
 <?php
 	$_all_forum=sc_get_result("SELECT COUNT(*) FROM `forum` WHERE `block`='%d'",array($_block['row']['id']));
@@ -221,52 +223,54 @@ $(function(){
 <script>
 $(function(){
 	$('a.btn.btn-danger').click(function(e){
-		if(!window.confirm("確定刪除所選取的區域？\n\n提醒您，該區塊的帖子也會一並刪除！")){
+		if(!window.confirm("確定刪除所選取的區域？\n\n提醒您，該區塊的文章也會一並刪除！")){
 			e.preventDefault();
 		}
 	});
 });
 </script>
-<table class="table table-striped">
-	<thead>
-		<tr>
-			<th>區塊</th>
-			<th>位置</th>
-			<th>帖數</th>
-			<th>最後發帖</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		<?php do{
-			$_block_post = sc_get_result("SELECT * FROM `forum` WHERE `block`='%d' ORDER BY `mktime` DESC",array($_forum['row']['id']));
-		?>
-		<tr>
-			<td>
-				<a href="forum.php?fid=<?php echo $_forum['row']['id']; ?>">
-				<?php echo $_forum['row']['blockname']; ?>
-				</a>
-			</td>
-			<td><?php echo $_forum['row']['position']; ?></td>
-			<td><?php echo $_block_post['num_rows']; ?></td>
-			<td>
-				<?php
-				if($_block_post['num_rows']>0){
-					echo date('Y-m-d H:i',strtotime($_block_post['row']['mktime']));
-				}else{
-					echo '無';
-				}?>
-			</td>
-			<td>
-				<a class="btn btn-info" href="forum.php?edit=<?php echo $_forum['row']['id']; ?>">編輯</a>
-				<?php if($_forum['num_rows']>1){ ?>
-				<a class="btn btn-danger" href="forum.php?delblock=<?php echo $_forum['row']['id']; ?>">刪除</a>
-				<?php } ?>
-			</td>
-		</tr>
-		<?php }while($_forum['row'] = $_forum['query']->fetch_assoc()); ?>
-	</tbody>
-</table>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>區塊</th>
+				<th>位置</th>
+				<th>文章數</th>
+				<th>最後發文</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php do{
+				$_block_post = sc_get_result("SELECT * FROM `forum` WHERE `block`='%d' ORDER BY `mktime` DESC",array($_forum['row']['id']));
+			?>
+			<tr>
+				<td>
+					<a href="forum.php?fid=<?php echo $_forum['row']['id']; ?>">
+					<?php echo $_forum['row']['blockname']; ?>
+					</a>
+				</td>
+				<td><?php echo $_forum['row']['position']; ?></td>
+				<td><?php echo $_block_post['num_rows']; ?></td>
+				<td>
+					<?php
+					if($_block_post['num_rows']>0){
+						echo date('Y-m-d H:i',strtotime($_block_post['row']['mktime']));
+					}else{
+						echo '無';
+					}?>
+				</td>
+				<td>
+					<a class="btn btn-info" href="forum.php?edit=<?php echo $_forum['row']['id']; ?>">編輯</a>
+					<?php if($_forum['num_rows']>1){ ?>
+					<a class="btn btn-danger" href="forum.php?delblock=<?php echo $_forum['row']['id']; ?>">刪除</a>
+					<?php } ?>
+				</td>
+			</tr>
+			<?php }while($_forum['row'] = $_forum['query']->fetch_assoc()); ?>
+		</tbody>
+	</table>
+</div>
 <?php } ?>
 <?php } ?>
 <?php

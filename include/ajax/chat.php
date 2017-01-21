@@ -1,7 +1,7 @@
 <?php
 /*
 <Secret Center, open source member management system>
-Copyright (C) 2012-2016 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ if(isset($_GET['sent'])){
 	if(isset($_POST['content'])&&trim($_POST['content'])!=''){
 		$_chat = sc_get_result("SELECT * FROM `chat` ORDER BY `mktime` ASC");
 		
-		if($_chat['num_rows'] > 50){
+		if($_chat['num_rows'] > 300){
 			$SQL->query("TRUNCATE TABLE `chat`");
 		}
 		$SQL->query("INSERT INTO `chat` (`content`, `mktime`, `author`) VALUES ('%s', now(), '%s')",array(htmlspecialchars($_POST['content']),$_SESSION_scratch['Center_Id']));

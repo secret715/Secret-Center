@@ -24,18 +24,21 @@ Secret Center
 -----
 本專案所引用的其他開放原始碼軟體：
 
->Bootstrap v3.3.6
+>Bootstrap v3.3.7
 授權：MIT License  
 官方網站：http://getbootstrap.com/
 
->CLEditor v1.4.5
+>Summer Note v0.8.2
 授權：MIT License  
-官方網站：http://premiumsoftware.net/cleditor/
+官方網站：http://summernote.org/
 
->HTML Purifier v4.7.0
+>HTML Purifier v4.8.0
 授權：LGPL v2.1+
 官方網站：http://htmlpurifier.org/
 
+>Jcrop v0.9.12
+授權：MIT License  
+官方網站：http://deepliquid.com/content/Jcrop.html
 
 ***
 Secret Center 由 [Secret Center 開發團隊] (http://center.gdsecret.net/#team) 製作

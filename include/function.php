@@ -1,6 +1,10 @@
 ﻿<?php
 function sc_ver(){
+<<<<<<< HEAD
 	return '9.1';
+=======
+	return '9.0.2';
+>>>>>>> origin/master
 }
 
 function sc_keygen($_value=''){

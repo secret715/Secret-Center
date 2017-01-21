@@ -20,16 +20,6 @@ Secret Center
 * 詳細資料(如：網站名稱)：config.php
 
 
-
-從Secret會員系統8.1升級
------
-1. 備份 Connections/SQL.php 及資料庫
-2. 上傳新版，不要覆蓋 Connections/SQL.php
-3. 執行 upgrade.php
-4. 升級成功！
-
-
-
 其他
 -----
 本專案所引用的其他開放原始碼軟體：

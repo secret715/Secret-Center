@@ -43,7 +43,7 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
     exit;
 }
 
-if(isset($_GET['edit']) && $_GET['edit'] != ''){
+if(isset($_GET['edit']) && $_GET['edit'] != '' && isset($_GET[$_SESSION['Center_Auth']])){
     $_member = sc_get_result("SELECT * FROM `member` WHERE `id` = '%d'",array(abs($_GET['edit'])));
 	if(isset($_POST['email'])&& filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
 		if($_POST['web_site']!='' && !filter_var($_POST['web_site'], FILTER_VALIDATE_URL)){
@@ -61,18 +61,41 @@ if(isset($_GET['edit']) && $_GET['edit'] != ''){
 		header("Location: member.php?edit=".$_member['row']['id'].'&ok');
 	}
 }else{
+	if(!isset($_GET['sort'])){
+		$_GET['sort']='00';
+	}
+	if(isset($_GET['sort'])){
+		$_GET['sort']=intval($_GET['sort']);
+		if(strlen($_GET['sort'])!=2){
+			$_GET['sort']=str_pad($_GET['sort'],2,0,STR_PAD_LEFT);
+		}
+		$_table=array('id','username','email','web_site','level','joined','last_login');
+		$_a=str_split($_GET['sort'],1);
+		if(!isset($_table[$_a[0]])){
+			$_a[0]=0;
+		}
+		
+		$_sort='`'.$_table[$_a[0]].'` ';
+		
+		if($_a[1]==1){
+			$_sort.='DESC';
+		}else{
+			$_sort.='ASC';
+		}
+	}
+	
 	$limit_row=30;
 	if(isset($_GET['page'])){
 		$limit_start = abs(intval(($_GET['page']-1)*$limit_row));
-		$_member = sc_get_result("SELECT * FROM `member` ORDER BY `id` ASC LIMIT %d,%d",array($limit_start,$limit_row));
+		$_member = sc_get_result("SELECT * FROM `member` ORDER BY %s LIMIT %d,%d",array($_sort,$limit_start,$limit_row));
 	} else {
 		$limit_start=0;
-		$_member = sc_get_result("SELECT * FROM `member` ORDER BY `id` ASC LIMIT %d,%d",array($limit_start,$limit_row));
+		$_member = sc_get_result("SELECT * FROM `member` ORDER BY %s LIMIT %d,%d",array($_sort,$limit_start,$limit_row));
 	}
 	
 }
 
-if(isset($_GET['del']) && $_GET['del'] != '') {
+if(isset($_GET['del']) && $_GET['del'] != ''&& isset($_GET[$_SESSION['Center_Auth']])) {
 	$_member = sc_get_result("SELECT * FROM `member` WHERE `id` = '%d'",array(abs($_GET['del'])));
 	
 	$_avatar_dir='../include/avatar/';
@@ -96,7 +119,7 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 	<div class="alert alert-success">成功刪除此會員！</div>
 <?php } ?>
 <h2 class="page-header">會員管理</h2>
-<?php if(isset($_GET['edit'])) { ?>
+<?php if(isset($_GET['edit']) && isset($_GET[$_SESSION['Center_Auth']])) { ?>
 <script>
 $(function(){
 	$('input[name="authpassword"]').on('keyup', function(){
@@ -116,7 +139,7 @@ $(function(){
 		<img src="<?php echo sc_avatar_url($_member['row']['id']); ?>" class="avatar">
 	</div>
 	<div class="col-sm-9">
-		<form class="form-horizontal form-sm" action="member.php?edit=<?php echo $_member['row']['id']; ?>" method="POST">
+		<form class="form-horizontal form-sm" action="member.php?edit=<?php echo $_member['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" method="POST">
 			<div class="form-group">
 				<label class="col-sm-3 control-label">帳號：</label>
 				<div class="col-sm-6">
@@ -193,33 +216,35 @@ $(function(){
 	});
 });
 </script>
-<table class="table table-striped table-hover">
-  <tr>
-    <th width="10%">ID</th>
-    <th width="20%">帳號</th>
-	<th width="20%">電子信箱</th>
-	<th width="20%">個人網站</th>
-    <th width="15%">權限</th>
-    <th width="15%">管理</th>
-  </tr>
-<?php do { ?>
-  <tr>
-    <td><?php echo $_member['row']['id'] ;?></td>
-    <td><?php echo $_member['row']['username'] ;?></td>
-	<td><small><?php echo $_member['row']['email'] ;?></small></td>
-	<td><small><?php echo $_member['row']['web_site'] ;?></small></td>
-    <td><?php echo sc_member_level($_member['row']['level']); ?></td>
-    <td>
-		<a href="member.php?edit=<?php echo $_member['row']['id'] ;?>" class="btn btn-info btn-sm">編輯</a>
-		<a href="member.php?del=<?php echo $_member['row']['id'] ;?>" class="btn btn-danger btn-sm">刪除</a>
-	</td>
-  </tr>
-<?php } while ($_member['row'] = $_member['query']->fetch_assoc()); ?>
-</table>
+<div class="table-responsive">
+	<table class="table table-striped table-hover">
+	  <tr>
+		<th width="5%"><a href="?sort=0<?php if($_a[0]==0)echo ($_a[1]+1)%2; else echo 0; ?>">ID<?php if($_a[0]==0){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
+		<th width="25%"><a href="?sort=1<?php if($_a[0]==1)echo ($_a[1]+1)%2; else echo 0; ?>">帳號<?php if($_a[0]==1){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></th>
+		<th width="20%"><a href="?sort=2<?php if($_a[0]==2)echo ($_a[1]+1)%2; else echo 0; ?>">電子信箱<?php if($_a[0]==2){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
+		<th width="20%"><a href="?sort=3<?php if($_a[0]==3)echo ($_a[1]+1)%2; else echo 0; ?>">個人網站<?php if($_a[0]==3){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
+		<th width="15%"><a href="?sort=4<?php if($_a[0]==4)echo ($_a[1]+1)%2; else echo 0; ?>">權限<?php if($_a[0]==4){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
+		<th width="15%">管理</th>
+	  </tr>
+	<?php do { ?>
+	  <tr>
+		<td><?php echo $_member['row']['id'] ;?></td>
+		<td><?php echo $_member['row']['username'] ;?></td>
+		<td><small><?php echo $_member['row']['email'] ;?></small></td>
+		<td><small><?php echo $_member['row']['web_site'] ;?></small></td>
+		<td><?php echo sc_member_level($_member['row']['level']); ?></td>
+		<td>
+			<a href="member.php?edit=<?php echo $_member['row']['id'].'&'.$_SESSION['Center_Auth'] ;?>" class="btn btn-info btn-sm">編輯</a>
+			<a href="member.php?del=<?php echo $_member['row']['id'].'&'.$_SESSION['Center_Auth'] ;?>" class="btn btn-danger btn-sm">刪除</a>
+		</td>
+	  </tr>
+	<?php } while ($_member['row'] = $_member['query']->fetch_assoc()); ?>
+	</table>
+</div>
 <div>
 <?php
 $_all_nav=sc_get_result("SELECT COUNT(*) FROM `member`");
-echo sc_page_pagination('member.php',@$_GET['page'],implode('',$_all_nav['row']),30);
+echo sc_page_pagination('member.php',@$_GET['page'],implode('',$_all_nav['row']),30,'&sort='.$_GET['sort']);
 ?>
 </div>
 <?php } ?>

@@ -34,7 +34,7 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 if(!session_id()) session_start();
 
 function captcha(){
-	$_array = array('a','b','c','d','e','f','g','h','j','k','m','n','p','q','r','s','t','u','v','w','x','y','z',1,2,3,4,5,6,7,8,9);//去除 L 、 l 、 O 跟 0
+	$_array = array('a','b','c','d','e','f','g','h','j','k','m','n','p','q','r','s','t','u','v','w','x','y','z',2,3,4,5,6,7,8,9);//去除 1 、 L 、 l 、 O 跟 0
 	$captcha = '';
 	
 	for($i = 0; $i < 6; $i++){
@@ -79,39 +79,18 @@ for($a = 1; $a <= $pa; $a++){
 	imageline($image, $width * $p, 1, $width * $p, $height - 2, imagecolorallocate($image, 127, 186, 190));
 }
 
-imagettftext(
-	$image,
-	$height * 0.4,
-	0,
-	mt_rand($width * 0.1, $width * 0.3),
-	mt_rand($height * 0.33, $height * 0.85),
-	genColor(80),
-	$font[array_rand($font)],
-	substr($text, 0, 2)
-);
-
-
-imagettftext(
-	$image, 
-	$height * 0.4, 
-	0, 
-	mt_rand($width * 0.4, $width * 0.55), 
-	mt_rand($height * 0.33, $height * 0.85),
-	genColor(100), 
-	$font[array_rand($font)],
-	substr($text, 2, 2)
-);
-
-imagettftext(
-	$image, 
-	$height * 0.4, 
-	0, 
-	mt_rand($width * 0.6, $width * 0.8), 
-	mt_rand($height * 0.33, $height * 0.85), 
-	genColor(100),
-	$font[array_rand($font)], 
-	substr($text, 4, 2)
-);
+for($i=0;$i<3;$i++){
+	imagettftext(
+		$image,
+		$height * 0.4,
+		0,
+		mt_rand($width * (0.05+$i*0.3), $width * (0.25*$i+0.3)),
+		mt_rand($height * 0.35, $height * 0.92),
+		genColor(mt_rand(0,200)),
+		$font[array_rand($font)],
+		substr($text, $i*2, 2)
+	);
+}
 
 
 for($i = 0; $i < 8; $i++){

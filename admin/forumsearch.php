@@ -43,7 +43,7 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
     exit;
 }
 
-if(isset($_GET['q'])&&trim($_GET['q'])!=''&&isset($_GET['level'])&&isset($_GET['mktime'])&&isset($_GET['author'])&&isset($_GET['block'])){
+if(isset($_GET['q'])&&trim($_GET['q'])!=''&&isset($_GET['level'])&&isset($_GET['mktime'])&&isset($_GET['author'])&&isset($_GET['block']) && isset($_GET[$_SESSION['Center_Auth']])){
 	if(is_numeric($_GET['level'])){
 		$_level= sprintf("AND `level` = '%d'",abs($_GET['level']));
  	}else{
@@ -85,8 +85,8 @@ if(isset($_GET['q'])&&trim($_GET['q'])!=''&&isset($_GET['level'])&&isset($_GET['
 $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_name'],'論壇搜尋',true);
 ?>
 <h2 class="page-header">論壇搜尋</h2>
-<?php if(!isset($_GET['q'])or trim($_GET['q'])==''or!isset($_GET['level'])or!isset($_GET['mktime'])or!isset($_GET['author'])or!isset($_GET['block'])){ ?>
-<form class="form-horizontal form-sm" action="forumsearch.php" method="GET">	
+<?php if(!isset($_GET['q'])or trim($_GET['q'])==''or!isset($_GET['level'])or!isset($_GET['mktime'])or!isset($_GET['author'])or!isset($_GET['block'])or!isset($_GET[$_SESSION['Center_Auth']])){ ?>
+<form class="form-horizontal form-sm" action="forumsearch.php" method="GET">
 	<div class="form-group">
 		<label class="col-sm-3 control-label" for="q">關鍵字：</label>
 		<div class="col-sm-9">
@@ -108,7 +108,7 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 				<option value="<?php echo $_block['row']['id']; ?>">
 					<?php echo $_block['row']['blockname']; ?>
 				</option>
-			<?php }while ($_block =  $_block['query']->fetch_assoc()); ?>
+			<?php }while ($_block['row'] =  $_block['query']->fetch_assoc()); ?>
 			</select>
 		</div>
 	</div>
@@ -135,6 +135,7 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 			<input class="btn btn-success btn-lg" type="submit" value="搜尋">
 		</div>
 	</div>
+	<input type="hidden" name="<?php echo $_SESSION['Center_Auth']; ?>">
 </form>
 <?php 
 }else{
@@ -164,7 +165,7 @@ if($_post['num_rows']<=0){ ?>
 <?php
 	}while ($_post['row'] = $_post['query']->fetch_assoc());
 	$_all_post=sc_get_result("SELECT COUNT(*) FROM `forum` WHERE `title` LIKE '%%%s%%' OR `content` LIKE '%%%s%%' OR `author` LIKE '%%%s%%' $_block $_level $_mktime",array(sc_xss_filter($_GET['q']),sc_xss_filter($_GET['q']),$_GET['author']));
-	echo sc_page_pagination('forumsearch.php',@$_GET['page'],implode('',$_all_post['row']),$center['forum']['limit'],'&q='.sc_xss_filter($_GET['q']).'&author='.urlencode(sc_namefilter($_GET['author'])).'&block='.urlencode(abs($_GET['block'])).'&level='.urlencode(abs($_GET['level'])).'&mktime[]='.$GET_mktime['0'].'&mktime[]='.$GET_mktime['1']);
+	echo sc_page_pagination('forumsearch.php',@$_GET['page'],implode('',$_all_post['row']),$center['forum']['limit'],'&q='.sc_xss_filter($_GET['q']).'&author='.urlencode(sc_namefilter($_GET['author'])).'&block='.urlencode(abs($_GET['block'])).'&level='.urlencode(abs($_GET['level'])).'&mktime[]='.$GET_mktime['0'].'&mktime[]='.$GET_mktime['1'].'&'.$_SESSION['Center_Auth']);
 }}
 ?>
 <?php

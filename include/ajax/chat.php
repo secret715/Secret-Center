@@ -42,7 +42,7 @@ if(!isset($_SESSION_scratch['Center_Username'])){
 	exit;
 }
 
-if(isset($_GET['sent'])){
+if(isset($_GET['sent'])&& isset($_GET[$_SESSION['Center_Auth']])){
 	if(isset($_POST['content'])&&trim($_POST['content'])!=''){
 		$_chat = sc_get_result("SELECT * FROM `chat` ORDER BY `mktime` ASC");
 		

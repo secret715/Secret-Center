@@ -46,7 +46,7 @@ $view->addScript("include/js/notice.js");
 ?>
 <script>
 $(function(){
-	new sc_chat('#chat',<?php echo $center['chat']['public']*1000; ?>);
+	new sc_chat('#chat',<?php echo $center['chat']['public']*1000; ?>,'<?php echo $_SESSION['Center_Auth']; ?>');
 });
 </script>
 <h2 class="page-header">聊天室</h2>

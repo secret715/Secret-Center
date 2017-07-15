@@ -44,7 +44,7 @@ $_member = sc_get_result("SELECT * FROM `member` WHERE `id` = '%d'",array($_SESS
 $_avatar_dir='include/avatar/';
 $upload_error = null;
 
-if(isset($_GET['step']) && !isset($_GET['no'])) {
+if(isset($_GET['step']) && !isset($_GET['no']) && isset($_GET[$_SESSION['Center_Auth']])) {
 	try {
 		//檢查頭貼資料夾是否存在
 		if(!is_dir($_avatar_dir)) {
@@ -154,7 +154,7 @@ $(function(){
 </script>
 裁切您的相片：
 <img id="jcrop" src="<?php echo sc_avatar_url($_member['row']['id']),'?',uniqid(); ?>">
-<form action="?step=3" method="post" onsubmit="return checkCoords();">
+<form action="?step=3&<?php echo $_SESSION['Center_Auth']; ?>" method="post" onsubmit="return checkCoords();">
 	<input type="hidden" id="x" name="x" />
 	<input type="hidden" id="y" name="y" />
 	<input type="hidden" id="w" name="w" />
@@ -162,7 +162,7 @@ $(function(){
 	<input type="submit" value="確定" class="btn btn-success" />
 </form>
 <?php }else{ ?>
-	<form action="avatar.php?step=2" method="post" enctype="multipart/form-data" name="form1">
+	<form action="avatar.php?step=2&<?php echo $_SESSION['Center_Auth']; ?>" method="post" enctype="multipart/form-data" name="form1">
 		<p>你目前的頭貼：</p>
 		<img src="<?php echo sc_avatar_url($_member['row']['id']); ?>" class="avatar avatar-lg">
 		<br>

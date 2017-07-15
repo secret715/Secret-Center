@@ -43,6 +43,8 @@ if(!isset($_SESSION['Center_Username'])){
 if((!isset($_GET['id']))or($_GET['id']=='')){
     header("Location: forum.php");
 	exit;
+}else{
+	$_GET['id']=intval($_GET['id']);
 }
 
 $_post = sc_get_result("SELECT * FROM `forum` WHERE `id` = '%d'",array($_GET['id']));
@@ -58,7 +60,7 @@ if(isset($_GET['reply'])){
 		exit;
 	}
 }
-if((isset($_GET['reply']))&& isset($_POST['content']) && trim($_POST['content'],"&nbsp;") != ''){
+if((isset($_GET['reply']))&& isset($_POST['content']) && trim($_POST['content'],"&nbsp;") != '' && isset($_GET[$_SESSION['Center_Auth']])){
 	$SQL->query("INSERT INTO `forum_reply` ( `post_id`,`content`, `mktime`, `author`) VALUES ('%s','%s',now(),'%d')",array(
 		$_post['row']['id'],
 		sc_xss_filter($_POST['content']),
@@ -115,7 +117,7 @@ $(function(){
 	$("#summernote").summernote({width:'99%', height:300, focus: true, lang: 'zh-TW'});
 });
 </script>
-<form action="forumview.php?id=<?php echo $_GET['id']; ?>&reply" method="POST" name="form1">
+<form action="forumview.php?id=<?php echo $_GET['id'].'&'.$_SESSION['Center_Auth']; ?>&reply" method="POST" name="form1">
 	<div class="form-group">
 		<label for="content">回覆內容：</label>
 		<textarea id="summernote" class="form-control" name="content" cols="65" rows="10" required="required"></textarea>
@@ -154,7 +156,7 @@ $(function(){
 			<a href="forumedit.php?post&id=<?php echo $_post['row']['id']; ?>" class="btn btn-info btn-sm">
 				編輯
 			</a>
-			<a href="javascript:if(confirm('確定刪除？'))location='mypost.php?del=<?php echo $_post['row']['id']; ?>'" class="btn btn-danger btn-sm">
+			<a href="javascript:if(confirm('確定刪除？'))location='mypost.php?del=<?php echo $_post['row']['id'].'&'.$_SESSION['Center_Auth']; ?>'" class="btn btn-danger btn-sm">
 				刪除
 			</a>	
 		</li>

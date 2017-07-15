@@ -40,7 +40,7 @@ if(!isset($_SESSION['Center_Username'])){
     exit;
 }
 
-if(isset($_GET['del'])&& abs($_GET['del'])!=''){
+if(isset($_GET['del'])&& abs($_GET['del'])!='' && isset($_GET[$_SESSION['Center_Auth']])){
 	$_del[] = sprintf("DELETE FROM `forum` WHERE `id` = '%d'",abs($_GET['del']));
     $_del[] = sprintf("DELETE FROM `forum_reply` WHERE post_id = '%d'",abs($_GET['del']));
     foreach($_del as $val){
@@ -50,12 +50,35 @@ if(isset($_GET['del'])&& abs($_GET['del'])!=''){
 }
 
 
-$_mypost = sc_get_result("SELECT * FROM `forum` WHERE `author` = '%s' ORDER BY `id` DESC",array($_SESSION['Center_Id']));
+if(!isset($_GET['sort'])){
+	$_GET['sort']='01';
+}
+if(isset($_GET['sort'])){
+	$_GET['sort']=intval($_GET['sort']);
+	if(strlen($_GET['sort'])!=2){
+		$_GET['sort']=str_pad($_GET['sort'],2,0,STR_PAD_LEFT);
+	}
+	$_table=array('mktime','title','block');
+	$_a=str_split($_GET['sort'],1);
+	if(!isset($_table[$_a[0]])){
+		$_a[0]=0;
+	}
+	
+	$_sort='`'.$_table[$_a[0]].'` ';
+	
+	if($_a[1]==1){
+		$_sort.='DESC';
+	}else{
+		$_sort.='ASC';
+	}
+}
+
+$_mypost = sc_get_result("SELECT * FROM `forum` WHERE `author` = '%d' ORDER BY %s",array($_SESSION['Center_Id'],$_sort));
 
 $view = new View('include/theme/default.html','include/nav.php',NULL,$center['site_name'],'我的文章');
 $view->addScript("include/js/notice.js");
 ?>
-<?php if(isset($_GET['del'])){?>
+<?php if(isset($_GET['delok'])){?>
 	<div class="alert alert-success">刪除成功！</div>
 <?php } ?>
 <h2 class="page-header">我的文章</h2>
@@ -65,11 +88,11 @@ $view->addScript("include/js/notice.js");
 <table class="table table-striped table-hover">
 	<thead>
 		<tr>
-			<th>文章</th>
-			<th>區塊</th>
+			<th><a href="?fid=<?php echo abs($_GET['fid']); ?>&sort=1<?php if($_a[0]==1)echo ($_a[1]+1)%2; else echo 0; ?>">標題<?php if($_a[0]==1){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
+			<th><a href="?fid=<?php echo abs($_GET['fid']); ?>&sort=2<?php if($_a[0]==2)echo ($_a[1]+1)%2; else echo 0; ?>">區塊<?php if($_a[0]==2){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
 			<th>回覆</th>
 			<th>最後回覆</th>
-			<th>發表時間</th>
+			<th><a href="?fid=<?php echo abs($_GET['fid']); ?>&sort=0<?php if($_a[0]==0)echo ($_a[1]+1)%2; else echo 0; ?>">發表時間<?php if($_a[0]==0){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
 			<th></th>
 		</tr>
 	</thead>
@@ -100,7 +123,7 @@ $view->addScript("include/js/notice.js");
 	<td><?php echo $_mypost['row']['mktime']; ?></td>
 	<td>
 		<a href="forumedit.php?post&id=<?php echo $_mypost['row']['id']; ?>" class="btn btn-info btn-sm">編輯</a>
-		<a href="javascript:if(confirm('確定刪除？'))location='mypost.php?del=<?php echo $_mypost['row']['id']; ?>'" class="btn btn-danger btn-sm">刪除</a>
+		<a href="javascript:if(confirm('確定刪除？'))location='mypost.php?del=<?php echo $_mypost['row']['id'].'&'.$_SESSION['Center_Auth']; ?>'" class="btn btn-danger btn-sm">刪除</a>
 	</td>
 </tr>
 <?php }while ($_mypost['row'] = $_mypost['query']->fetch_assoc()); ?>

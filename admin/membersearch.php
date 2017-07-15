@@ -43,7 +43,7 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
     exit;
 }
 
-if(isset($_GET['search'])&&isset($_POST['level'])&&isset($_POST['joined'])&&isset($_POST['last_login'])&&isset($_POST['username'])&&isset($_POST['email'])&&isset($_POST['web_site'])){
+if(isset($_GET['search'])&&isset($_POST['level'])&&isset($_POST['joined'])&&isset($_POST['last_login'])&&isset($_POST['username'])&&isset($_POST['email'])&&isset($_POST['web_site']) && isset($_GET[$_SESSION['Center_Auth']])){
 	if(is_numeric($_POST['level'])){
 		$_level= sprintf("AND `level` = '%d'",abs($_POST['level']));
  	}else{
@@ -82,14 +82,32 @@ if(isset($_GET['search'])&&isset($_POST['level'])&&isset($_POST['joined'])&&isse
 		$_last_login='';
 	}
 	
-	$_member = sc_get_result("SELECT * FROM `member` WHERE `username` LIKE '%%%s%%' AND `email` LIKE '%%%s%%' AND `web_site` LIKE '%%%s%%' $_last_login $_joined $_level ORDER BY `id` ASC",array(sc_namefilter($_POST['username']),$_POST['email'],$_POST['web_site']));
+	
+	$_table=array('id','username','email','web_site','level','joined','last_login');
+	if(!isset($_POST['sort'])){
+		$_POST['sort'][0]=0;
+		$_POST['sort'][1]=0;
+	}
+	if(!isset($_table[$_POST['sort'][0]])){
+		$_POST['sort'][0]=0;
+	}
+	
+	$_sort='`'.$_table[$_POST['sort'][0]].'` ';
+	
+	if($_POST['sort'][1]==1){
+		$_sort.='DESC';
+	}else{
+		$_sort.='ASC';
+	}
+	
+	$_member = sc_get_result("SELECT * FROM `member` WHERE `username` LIKE '%%%s%%' AND `email` LIKE '%%%s%%' AND `web_site` LIKE '%%%s%%' $_last_login $_joined $_level ORDER BY $_sort",array(sc_namefilter($_POST['username']),$_POST['email'],$_POST['web_site']));
 }
 
 $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_name'],'會員搜尋',true);
 ?>
 <h2 class="page-header">會員搜尋</h2>
-<?php if(!isset($_GET['search'])or!isset($_POST['level'])or!isset($_POST['joined'])or!isset($_POST['last_login'])or!isset($_POST['username'])or!isset($_POST['email'])or!isset($_POST['web_site'])){ ?>
-<form class="form-horizontal form-sm" action="membersearch.php?search" method="POST">	
+<?php if(!isset($_GET['search'])or !isset($_POST['level'])or !isset($_POST['joined'])or !isset($_POST['last_login'])or !isset($_POST['username'])or !isset($_POST['email'])or !isset($_POST['web_site']) or !isset($_GET[$_SESSION['Center_Auth']])){ ?>
+<form class="form-horizontal form-sm" action="membersearch.php?search&<?php echo $_SESSION['Center_Auth']; ?>" method="POST">	
 	<div class="form-group">
 		<label class="col-sm-3 control-label" for="username">帳號：</label>
 		<div class="col-sm-9">
@@ -134,6 +152,24 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 		</div>
 	</div>
 	<div class="form-group">
+		<label class="col-sm-3 control-label" for="sort">排序：</label>
+		<div class="col-sm-9">
+			<select class="form-control" name="sort[]" style="width:74.5%;display:inline-block;">
+					<option value="0">ID</option>
+					<option value="1">帳號名稱</option>
+					<option value="2">電子信箱</option>
+					<option value="3">個人網站</option>
+					<option value="4">註冊日期</option>
+					<option value="5">最後登入</option>
+					<option value="6">權限</option>
+			</select>
+			<select class="form-control" name="sort[]" style="width:24%;display:inline-block;">
+				<option value="0">升冪</option>
+				<option value="1">降冪</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
 		<div class="col-sm-offset-3 col-sm-9">
 			<input class="btn btn-success btn-lg" type="submit" value="搜尋">
 		</div>
@@ -149,37 +185,39 @@ $(function(){
 	});
 });
 </script>
-<table class="table table-striped table-hover">
-  <tr>
-    <th width="7%">ID</th>
-    <th width="17%">帳號名稱</th>
-	<th width="17%">電子信箱</th>
-	<th width="12%">個人網站</th>
-	<th width="12%">註冊日期</th>
-	<th width="15%">最後登入</th>
-    <th width="10%">權限</th>
-    <th width="10%">管理</th>
-  </tr>
-<?php do { ?>
-  <tr>
-    <td><?php echo $_member['row']['id'] ;?></td>
-    <td><?php echo $_member['row']['username'] ;?></td>
-	<td><small><?php echo $_member['row']['email'] ;?></small></td>
-	<td><small><?php echo $_member['row']['web_site'] ;?></small></td>
-	<td style="font-size:92%;">
-		<small><?php echo date('Y-m-d',strtotime($_member['row']['joined'])); ?></small>
-	</td>
-	<td style="font-size:92%;">
-		<small><?php echo date('Y-m-d H:i',strtotime($_member['row']['last_login'])); ?></small>
-	</td>
-    <td><?php echo sc_member_level($_member['row']['level']); ?></td>
-    <td>
-		<a href="member.php?edit=<?php echo $_member['row']['id'] ;?>" class="btn btn-info btn-xs">編輯</a>
-		<a href="member.php?del=<?php echo $_member['row']['id'] ;?>" class="btn btn-danger btn-xs">刪除</a>
-	</td>
-  </tr>
-<?php } while ($_member['row'] = $_member['query']->fetch_assoc()); ?>
-</table>
+<div class="table-responsive">
+	<table class="table table-striped table-hover">
+	  <tr>
+		<th width="5%">ID</th>
+		<th width="17%">帳號名稱</th>
+		<th width="17%">電子信箱</th>
+		<th width="12%">個人網站</th>
+		<th width="12%">註冊日期</th>
+		<th width="15%">最後登入</th>
+		<th width="10%">權限</th>
+		<th width="12%">管理</th>
+	  </tr>
+	<?php do { ?>
+	  <tr>
+		<td><?php echo $_member['row']['id'] ;?></td>
+		<td><?php echo $_member['row']['username'] ;?></td>
+		<td><small><?php echo $_member['row']['email'] ;?></small></td>
+		<td><small><?php echo $_member['row']['web_site'] ;?></small></td>
+		<td style="font-size:92%;">
+			<small><?php echo date('Y-m-d',strtotime($_member['row']['joined'])); ?></small>
+		</td>
+		<td style="font-size:92%;">
+			<small><?php echo date('Y-m-d H:i',strtotime($_member['row']['last_login'])); ?></small>
+		</td>
+		<td><?php echo sc_member_level($_member['row']['level']); ?></td>
+		<td>
+			<a href="member.php?edit=<?php echo $_member['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" class="btn btn-info btn-xs">編輯</a>
+			<a href="member.php?del=<?php echo $_member['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" class="btn btn-danger btn-xs">刪除</a>
+		</td>
+	  </tr>
+	<?php } while ($_member['row'] = $_member['query']->fetch_assoc()); ?>
+	</table>
+</div>
 <?php }else{ ?>
 	<div class="alert alert-danger">很抱歉，沒有符合的資料！</div>
 <?php }} ?>

@@ -1,14 +1,42 @@
-﻿<?php
+<?php
+/*
+<Secret Center, open source member management system>
+Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Also add information on how to contact you by electronic and paper mail.
+
+  If your software can interact with users remotely through a computer
+network, you should also make sure that it provides a way for users to
+get its source.  For example, if your program is a web application, its
+interface could display a "Source" link that leads users to an archive
+of the code.  There are many ways you could offer source, and different
+solutions will be better for different programs; see section 13 for the
+specific requirements.
+
+  You should also get your employer (if you work as a programmer) or school,
+if any, to sign a "copyright disclaimer" for the program, if necessary.
+For more information on this, and how to apply and follow the GNU AGPL, see
+<http://www.gnu.org/licenses/>.
+*/
+
 function sc_ver(){
-<<<<<<< HEAD
-	return '9.1';
-=======
-	return '9.0.2';
->>>>>>> origin/master
+	return '9.2';
 }
 
 function sc_keygen($_value=''){
-	return str_shuffle(base64_encode(mt_rand(100,999).time()).sha1(mt_rand().md5($_value).uniqid()));
+	return str_shuffle(str_replace('=','',base64_encode(mt_rand(100,999).time()).sha1(mt_rand().md5($_value).uniqid())));
 }
 function sc_login($_username,$_password){
 	global $SQL;
@@ -40,7 +68,8 @@ function sc_login($_username,$_password){
 			
 			$_SESSION['Center_Username'] = strtolower($_username);
 			$_SESSION['Center_Id'] = $info['id'];
-			$_SESSION['Center_UserGroup'] = $info['level'];	      
+			$_SESSION['Center_UserGroup'] = $info['level'];
+			$_SESSION['Center_Auth'] = substr(sc_keygen(),0,5);
 			setcookie("login", time(), time()+10800);
 			return 1;
 		}
@@ -53,8 +82,10 @@ function sc_loginout(){
 	$_SESSION['Center_Username'] = NULL;
 	$_SESSION['Center_Id'] = NULL;
 	$_SESSION['Center_UserGroup'] = NULL;
+	$_SESSION['Center_Auth'] = NULL;
 	unset($_SESSION['Center_Username']);
 	unset($_SESSION['Center_Id']);
+	unset($_SESSION['Center_UserGroup']);
 	unset($_SESSION['Center_UserGroup']);
 	setcookie("login", "", time()-10800);
 	return 1;
@@ -186,7 +217,7 @@ function sc_avatar_url($_id,$_only_file_name=false){
 			return $_avatar['row']['avatar'];
 		}else{
 			
-			$_headurl = rtrim(rtrim(rtrim(sc_get_headurl(),'/include'),'/admin'),'/ajax').'/';
+			$_headurl = str_replace(array('/include','/admin','/ajax'),array('','',''),sc_get_headurl());
 			return $_headurl.'include/avatar/'.$_avatar['row']['avatar'];
 		}
 	}else{

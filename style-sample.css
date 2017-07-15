@@ -8,7 +8,7 @@ html, body {
 	font-family:微軟正黑體,新細明體,Arial;
 }
 body {
-	padding-top: 70px;
+	padding-top: 50px;
 }
 h1,h2,h3{
 	font-weight: normal;
@@ -23,12 +23,12 @@ ul li{
 	width:%d%;
 	margin:0 auto;
 	background-color: rgba(255,255,255,0.7);
-	padding:2em;
+	padding:2em 2em 0 2em;
 	letter-spacing:0.2px;
 	border-radius:0.25em;
 }
 #main .content{
-	min-height:350px;
+	min-height:calc(100vh - 12.5em);
 }
 footer{
 	margin-top:5em;
@@ -215,6 +215,20 @@ form .captcha {
 		max-height: 50vh;
 	}
 	.avatar{
-		width:40px;
+		width:50px;
+	}
+	.post img{
+		max-width:100%;
+		height:auto !important;
+	}
+	.post .con {
+		padding: 0;
+		min-height:1em;
+	}
+	.post{
+		width: calc(100% + 2em);
+		margin-left:-1em;
+		margin-right:-1em;
+		border-radius:0;
 	}
 }

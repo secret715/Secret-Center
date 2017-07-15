@@ -43,7 +43,7 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
     exit;
 }
 
-if(isset($_POST['site_name'])){
+if(isset($_POST['site_name']) && isset($_POST['mail'])&& filter_var($_POST['mail'], FILTER_VALIDATE_EMAIL) && isset($_POST['public'])&& isset($_POST['avatar_max_size'])&& isset($_POST['quality'])&& isset($_POST['forum_limit'])&& isset($_POST['member_message']) && isset($_GET[$_SESSION['Center_Auth']])){
 	if(isset($_POST['register'])){
 		$register=1;
 	}else{
@@ -91,7 +91,7 @@ $(function(){
 });
 </script>
 <h2 class="page-header">系統設定</h2>
-<form class="form-horizontal" method="post" action="editconfig.php">
+<form class="form-horizontal" method="post" action="editconfig.php?<?php echo $_SESSION['Center_Auth']; ?>">
 	<fieldset>
 		<legend>主要</legend>
 		<div class="form-group">

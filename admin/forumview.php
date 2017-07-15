@@ -46,6 +46,8 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
 if((!isset($_GET['id']))or($_GET['id']=='')){
     header("Location: forum.php");
 	exit;
+}else{
+	$_GET['id']=intval($_GET['id']);
 }
 
 $_post = sc_get_result("SELECT * FROM `forum` WHERE `id` = '%d'",array($_GET['id']));
@@ -56,14 +58,14 @@ if($_post['num_rows']<=0){
 }
 
 
-if(isset($_GET['del']) && $_GET['del'] != ''){
+if(isset($_GET['del']) && $_GET['del'] != '' && isset($_GET[$_SESSION['Center_Auth']])){
     $_del[] = sprintf("DELETE FROM `forum` WHERE `id` = '%d'",$_GET['del']);
     $_del[] = sprintf("DELETE FROM `forum_reply` WHERE `post_id` = '%d'",$_GET['del']);
     foreach($_del as $val){
 		$SQL->query($val);
 	}
 	header('Location: forum.php?del&fid='.$_post['row']['block']);
-}elseif(isset($_GET['delreply']) && $_GET['delreply'] != ''){
+}elseif(isset($_GET['delreply']) && $_GET['delreply'] != '' && isset($_GET[$_SESSION['Center_Auth']])){
 	$SQL->query("DELETE FROM `forum_reply` WHERE `id` = '%d'",array($_GET['delreply']));
 	header("Location: forumview.php?delreply&id=".$_post['row']['id']);
 }
@@ -124,9 +126,9 @@ $(function(){
 			<a href="forumedit.php?post&id=<?php echo $_post['row']['id']; ?>" class="btn btn-info btn-sm">
 				編輯
 			</a>
-			<a href="forumview.php?del=<?php echo $_post['row']['id']; ?>&id=<?php echo $_post['row']['id']; ?>" class="btn btn-danger btn-sm">
+			<a href="forumview.php?del=<?php echo $_post['row']['id']; ?>&id=<?php echo $_post['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" class="btn btn-danger btn-sm">
 				刪除
-			</a>	
+			</a>
 		</li>
 		<?php } ?>
 	</ul>
@@ -152,7 +154,7 @@ if($_reply['num_rows']>0){
 			<a href="forumedit.php?reply&id=<?php echo $_reply['row']['id']; ?>" class="btn btn-info btn-sm">
 				編輯
 			</a>
-			<a href="forumview.php?delreply=<?php echo $_reply['row']['id']; ?>&id=<?php echo $_post['row']['id']; ?>" class="btn btn-danger btn-sm">
+			<a href="forumview.php?delreply=<?php echo $_reply['row']['id']; ?>&id=<?php echo $_post['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" class="btn btn-danger btn-sm">
 				刪除
 			</a>
 		</li>

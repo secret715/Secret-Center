@@ -52,7 +52,7 @@ if(isset($_GET['newpost'])){
 	}
 }
 
-if(isset($_POST['title']) && isset($_POST['content']) && isset($_POST['block']) && isset($_POST['level']) && trim(htmlspecialchars($_POST['title'])) != '' && trim($_POST['content'],"&nbsp;") != '') {
+if(isset($_POST['title']) && isset($_POST['content']) && isset($_POST['block']) && isset($_POST['level']) && trim(htmlspecialchars($_POST['title'])) != '' && trim($_POST['content'],"&nbsp;") != '' && isset($_GET[$_SESSION['Center_Auth']])) {
 	$_POST['block']=abs(intval($_POST['block']));
 	if($center['forum']['captcha']==1){
 		if(strtoupper($_POST['captcha']) != strtoupper($_SESSION['captcha'])){
@@ -76,14 +76,37 @@ if(isset($_GET['fid'])){
 		header("Location: forum.php");
 	}
 	
+	if(!isset($_GET['sort'])){
+		$_GET['sort']='01';
+	}
+	if(isset($_GET['sort'])){
+		$_GET['sort']=intval($_GET['sort']);
+		if(strlen($_GET['sort'])!=2){
+			$_GET['sort']=str_pad($_GET['sort'],2,0,STR_PAD_LEFT);
+		}
+		$_table=array('mktime','title','author');
+		$_a=str_split($_GET['sort'],1);
+		if(!isset($_table[$_a[0]])){
+			$_a[0]=0;
+		}
+		
+		$_sort='`'.$_table[$_a[0]].'` ';
+		
+		if($_a[1]==1){
+			$_sort.='DESC';
+		}else{
+			$_sort.='ASC';
+		}
+	}
+	
 	$limit_row=$center['forum']['limit'];
 	
 	if(isset($_GET['page'])){
 		$limit_start = abs(intval(($_GET['page']-1)*$limit_row));
-		$_forum = sc_get_result("SELECT * FROM `forum` WHERE `block`='%d' ORDER BY `mktime` DESC LIMIT %d,%d",array($_block['row']['id'],$limit_start,$limit_row));
+		$_forum = sc_get_result("SELECT * FROM `forum` WHERE `block`='%d' ORDER BY %s LIMIT %d,%d",array($_block['row']['id'],$_sort,$limit_start,$limit_row));
 	} else {
 		$limit_start=0;
-		$_forum = sc_get_result("SELECT * FROM `forum` WHERE `block`='%d' ORDER BY `mktime` DESC LIMIT %d,%d",array($_block['row']['id'],$limit_start,$limit_row));
+		$_forum = sc_get_result("SELECT * FROM `forum` WHERE `block`='%d' ORDER BY %s  LIMIT %d,%d",array($_block['row']['id'],$_sort,$limit_start,$limit_row));
 	}
 }else{
 	$_forum = sc_get_result("SELECT * FROM `forum_block` ORDER BY `position` ASC");
@@ -115,7 +138,7 @@ $(function(){
 });
 </script>
 <h2 class="page-header">發表文章</h2>
-<form action="forum.php?newpost" method="POST">
+<form action="forum.php?newpost&<?php echo $_SESSION['Center_Auth']; ?>" method="POST">
 	<div class="form-group">
 		<input class="form-control" name="title" type="text" placeholder="標題" required="required">
 	</div>
@@ -192,8 +215,8 @@ $(function(){
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
-				<th>文章</th>
-				<th>作者/發表時間</th>
+				<th><a href="?fid=<?php echo abs($_GET['fid']); ?>&sort=1<?php if($_a[0]==1)echo ($_a[1]+1)%2; else echo 0; ?>">標題<?php if($_a[0]==1){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
+				<th><a href="?fid=<?php echo abs($_GET['fid']); ?>&sort=2<?php if($_a[0]==2)echo ($_a[1]+1)%2; else echo 0; ?>">作者<?php if($_a[0]==2){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a>/<a href="?fid=<?php echo abs($_GET['fid']); ?>&sort=0<?php if($_a[0]==0)echo ($_a[1]+1)%2; else echo 0; ?>">發表時間<?php if($_a[0]==0){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
 				<th>回覆</th>
 				<th>最後回覆</th>
 			</tr>
@@ -214,7 +237,7 @@ $(function(){
 					<span class="label label-default"><?php echo sc_member_level($_forum['row']['level']); ?></span>
 					<?php } ?>
 				</td>
-				<td style="line-height:0.8em;font-size:92%;">
+				<td style="line-height:0.85em;font-size:90%;">
 					<?php echo $_author['row']['username']; ?>
 					<br><span style="font-size:66%;"><?php echo date('Y-m-d H:i',strtotime($_forum['row']['mktime'])); ?></span>
 				</td>
@@ -224,7 +247,7 @@ $(function(){
 				<td>
 					<?php
 						if($_reply['num_rows']>0){
-							echo '<div style="line-height:0.8em;font-size:92%;">'.$_reply_author['row']['username'].'<br><span style="font-size:66%;">'.date('Y-m-d H:i',strtotime($_reply['row']['mktime'])).'</span></div>';
+							echo '<div style="line-height:0.85em;font-size:90%;">'.$_reply_author['row']['username'].'<br><span style="font-size:66%;">'.date('Y-m-d H:i',strtotime($_reply['row']['mktime'])).'</span></div>';
 						}else{
 							echo '無';
 						}
@@ -238,7 +261,7 @@ $(function(){
 </div>
 <?php
 	$_all_forum=sc_get_result("SELECT COUNT(*) FROM `forum` WHERE `block`='%d'",array($_block['row']['id']));
-	echo sc_page_pagination('forum.php',@$_GET['page'],implode('',$_all_forum['row']),$center['forum']['limit'],'&fid='.$_block['row']['id']);
+	echo sc_page_pagination('forum.php',@$_GET['page'],implode('',$_all_forum['row']),$center['forum']['limit'],'&fid='.$_block['row']['id'].'&sort='.$_GET['sort']);
 }}else{ ?>
 <h2 class="page-header">論壇</h2>
 <?php if($_forum['num_rows'] == 0){ ?>

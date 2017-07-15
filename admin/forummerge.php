@@ -43,7 +43,7 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
     exit;
 }
 
-if((isset($_POST['merge'])&&isset($_POST['block']))&&(abs($_POST['merge'])!=abs($_POST['block']))){
+if((isset($_POST['merge'])&&isset($_POST['block']))&&(abs($_POST['merge'])!=abs($_POST['block'])) && isset($_GET[$_SESSION['Center_Auth']])){
 	$SQL->query("UPDATE `forum` SET `block` = '%d' WHERE  `block` = '%d'",array(abs($_POST['block']),abs($_POST['merge'])));
 	$SQL->query("DELETE FROM `forum_block` WHERE `id` ='%d'",array(abs($_POST['merge'])));
 }
@@ -55,7 +55,7 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 ?>
 <h2 class="page-header">區塊合併</h2>
 <p>轉移舊區塊的所有文章，並同時刪除舊區塊</p>
-<form class="form-xs" action="forummerge.php" method="POST">
+<form class="form-xs" action="forummerge.php?<?php echo $_SESSION['Center_Auth']; ?>" method="POST">
 		<div class="form-group">
 			將舊區塊
 			<select class="form-control" name="merge" required="required">

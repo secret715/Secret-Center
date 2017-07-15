@@ -60,7 +60,7 @@ if(isset($_GET['post'])){
 		exit;
 	}
 	
-	if(isset($_POST['title']) && isset($_POST['content']) && trim(htmlspecialchars($_POST['title'])) != '' && trim(strip_tags($_POST['content']),"&nbsp;") != '') {
+	if(isset($_POST['title']) && isset($_POST['content']) && trim(htmlspecialchars($_POST['title'])) != '' && trim(strip_tags($_POST['content']),"&nbsp;") != '' && isset($_GET[$_SESSION['Center_Auth']])) {
 		
 		$_block_auth = $SQL->query("SELECT * FROM `forum_block` WHERE `id` = '%d'",array(abs($_POST['block'])))->num_rows;
 		if($_block_auth<=0){
@@ -91,7 +91,7 @@ if(isset($_GET['post'])){
 		exit;
 	}
 	
-	if(isset($_POST['content']) && trim(strip_tags($_POST['content']),"&nbsp;") != '') {
+	if(isset($_POST['content']) && trim(strip_tags($_POST['content']),"&nbsp;") != '' && isset($_GET[$_SESSION['Center_Auth']])) {
 		$SQL->query("UPDATE `forum_reply` SET `content` = '%s' WHERE `id` = '%d' AND `author` = '%d'",array(
 			sc_xss_filter($_POST['content']),
 			$_GET['id'],
@@ -119,7 +119,7 @@ $(function(){
 </script>
 <?php if(isset($_GET['reply'])){ ?>
 <h2>編輯回覆</h2>
-<form action="forumedit.php?reply&id=<?php echo $_reply['row']['id']; ?>" method="POST">
+<form action="forumedit.php?reply&id=<?php echo $_reply['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" method="POST">
 	<div class="form-group">
 		<label for="content">回覆內容：</label>
 		<textarea id="summernote" class="form-control" name="content" cols="65" rows="10" required="required"><?php echo sc_removal_escape_string($_reply['row']['content']); ?></textarea>
@@ -128,7 +128,7 @@ $(function(){
 </form>
 <?php } elseif(isset($_GET['post'])){ ?>
 <h2>編輯文章</h2>
-<form action="forumedit.php?post&id=<?php echo $_post['row']['id']; ?>" method="POST">
+<form action="forumedit.php?post&id=<?php echo $_post['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" method="POST">
 	<div class="form-group">
 		<input class="form-control" name="title" type="text" placeholder="標題" required="required" value="<?php echo $_post['row']['title']; ?>">
 	</div>

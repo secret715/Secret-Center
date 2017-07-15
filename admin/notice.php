@@ -43,7 +43,7 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
 	exit;
 }
 
-if(isset($_POST['status'])&&isset($_POST['mktime'])&&intval($_POST['status'])>=0&&intval($_POST['mktime'])>=0){
+if(isset($_POST['status'])&&isset($_POST['mktime'])&&intval($_POST['status'])>=0&&intval($_POST['mktime'])>=0 && isset($_GET[$_SESSION['Center_Auth']])){
 	if($_POST['status']!='all'){
 		$_status=intval($_POST['status']);
 		$_status_SQL=sprintf("`status` = '%d' AND",$_status);
@@ -78,7 +78,7 @@ $(function(){
 	<?php echo $_unread_notice['num_rows']; ?> 筆未讀，
 	<?php echo $_read_notice['num_rows']; ?> 筆已讀
 </p>
-<form class="form-horizontal form-sm" action="notice.php" method="POST">
+<form class="form-horizontal form-sm" action="notice.php?<?php echo $_SESSION['Center_Auth']; ?>" method="POST">
 	<div class="form-group">
 	<label class="col-sm-3 control-label" for="mktime">時間：</label>
 	<div class="col-sm-6">

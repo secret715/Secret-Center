@@ -43,7 +43,7 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
 	exit;
 }
 
-if(isset($_POST['body_font-size'])){
+if(isset($_POST['body_font-size']) &&isset($_POST['body_background-color']) &&isset($_POST['body_line-height']) &&isset($_POST['main_width']) &&isset($_POST['chat_color']) &&isset($_POST['chat_background-color']) && isset($_GET[$_SESSION['Center_Auth']])){
 	$_put_array=array(
 		addslashes($_POST['body_font-size']),
 		addslashes($_POST['body_background-color']),
@@ -75,7 +75,7 @@ $view = new View('theme/admin_default.html','admin/nav.php','',$center['site_nam
 <?php } ?>
 <h2 class="page-header">網站樣式</h2>
 <p>提醒您，若修改後網站樣式沒有變更，請清除瀏覽器快取後再重新整理頁面</p>
-<form class="form-horizontal form-sm" method="post" action="editcss.php">
+<form class="form-horizontal form-sm" method="post" action="editcss.php?<?php echo $_SESSION['Center_Auth']; ?>">
 	<fieldset>
 		<legend>主要</legend>
 		<div class="form-group">

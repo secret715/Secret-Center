@@ -43,7 +43,7 @@ if(!isset($_SESSION['Center_Username']) or $_SESSION['Center_UserGroup'] != 9){
     exit;
 }
 
-if(isset($_GET['del'])){
+if(isset($_GET['del']) && isset($_GET[$_SESSION['Center_Auth']])){
 	$SQL->query("TRUNCATE TABLE `chat`");
 }
 
@@ -52,7 +52,7 @@ $view->addScript("../include/js/chat.js");
 ?>
 <script>
 $(function(){
-	new sc_chat('#chat',1);
+	new sc_chat('#chat',1,'<?php echo $_SESSION['Center_Auth']; ?>');
 	$('#chat_del').click(function(e){
 		if(!window.confirm("確定清除所有聊天紀錄？")){
 			e.preventDefault();
@@ -62,7 +62,7 @@ $(function(){
 </script>
 <h2 class="page-header">聊天管理</h2>
 <p>
-	<a id="chat_del" class="btn btn-danger" href="chat.php?del">清除所有聊天紀錄</a>
+	<a id="chat_del" class="btn btn-danger" href="chat.php?del&<?php echo $_SESSION['Center_Auth']; ?>">清除所有聊天紀錄</a>
 </p>
 <div id="chat"></div>
 <?php

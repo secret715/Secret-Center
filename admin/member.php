@@ -220,7 +220,7 @@ $(function(){
 	<table class="table table-striped table-hover">
 	  <tr>
 		<th width="5%"><a href="?sort=0<?php if($_a[0]==0)echo ($_a[1]+1)%2; else echo 0; ?>">ID<?php if($_a[0]==0){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
-		<th width="25%"><a href="?sort=1<?php if($_a[0]==1)echo ($_a[1]+1)%2; else echo 0; ?>">帳號<?php if($_a[0]==1){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></th>
+		<th width="25%"><a href="?sort=1<?php if($_a[0]==1)echo ($_a[1]+1)%2; else echo 0; ?>">帳號<?php if($_a[0]==1){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
 		<th width="20%"><a href="?sort=2<?php if($_a[0]==2)echo ($_a[1]+1)%2; else echo 0; ?>">電子信箱<?php if($_a[0]==2){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
 		<th width="20%"><a href="?sort=3<?php if($_a[0]==3)echo ($_a[1]+1)%2; else echo 0; ?>">個人網站<?php if($_a[0]==3){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>
 		<th width="15%"><a href="?sort=4<?php if($_a[0]==4)echo ($_a[1]+1)%2; else echo 0; ?>">權限<?php if($_a[0]==4){ ?><span class="glyphicon glyphicon-menu-<?php if($_a[1]==0){ ?>down<?php }else{ ?>up<?php } ?>"></span><?php } ?></a></th>

@@ -28,11 +28,11 @@ Secret Center
 授權：MIT License  
 官方網站：http://getbootstrap.com/
 
->Summer Note v0.8.4
+>Summer Note v0.8.7
 授權：MIT License  
 官方網站：http://summernote.org/
 
->HTML Purifier v4.9.2
+>HTML Purifier v4.9.3
 授權：LGPL v2.1+
 官方網站：http://htmlpurifier.org/
 

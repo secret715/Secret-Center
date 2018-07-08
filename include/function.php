@@ -32,7 +32,7 @@ For more information on this, and how to apply and follow the GNU AGPL, see
 */
 
 function sc_ver(){
-	return '9.2.1';
+	return '9.2.2';
 }
 
 function sc_keygen($_value=''){
@@ -187,14 +187,18 @@ function sc_xss_filter($_content){
 
 function sc_add_forum_post($_title,$_content,$_block,$_id,$_level){
 	global $SQL;
-	$SQL->query("INSERT INTO `forum` (`title`, `content`,`block`, `level`, `mktime`, `author`) VALUES ('%s', '%s','%d', '%d', now(),'%d')",array(
-		htmlspecialchars($_title),
-		sc_xss_filter($_content),
-		abs($_block),
-		abs($_level),
-		abs($_id)
-	));
-	return 1;
+	if(array_key_exists($_level,sc_member_level_array())){
+		$SQL->query("INSERT INTO `forum` (`title`, `content`,`block`, `level`, `mktime`, `author`) VALUES ('%s', '%s','%d', '%d', now(),'%d')",array(
+			htmlspecialchars($_title),
+			sc_xss_filter($_content),
+			abs($_block),
+			abs($_level),
+			abs($_id)
+		));
+		return 1;
+	}else{
+		return -1;
+	}
 }
 function sc_add_forum_block($_blockname,$_position=0){
 	global $SQL;

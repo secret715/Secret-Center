@@ -54,6 +54,11 @@ if($_post['num_rows']<=0){
 	exit;
 }
 
+if($_SESSION['Center_UserGroup']<$_post['row']['level']){
+	header("Location: forum.php?level&fid=".$_post['row']['block']);
+	exit;
+}
+
 if(isset($_GET['reply'])){
 	if($_SESSION['Center_UserGroup']==0){
 		header("Location: forumview.php?banned&id=".$_GET['id']);
@@ -82,6 +87,7 @@ if((isset($_GET['reply']))&& isset($_POST['content']) && trim($_POST['content'],
 		$_SESSION['Center_Id']
 	);
 	header("Location: forumview.php?replying&id=".$_GET['id']);
+	exit;
 }
 
 

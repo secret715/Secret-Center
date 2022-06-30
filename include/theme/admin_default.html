@@ -4,58 +4,29 @@
 	<title>{part} | {title}</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="robots" content="noindex,nofollow,noodp,noydir" />
+	<meta name="robots" content="index,follow,noodp,noydir" />
 	<meta name="application-name" content="{title}" />
 	<meta name="author" content="Secret" />
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<link href="{style}" rel="stylesheet" type="text/css">
-	<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	<meta property="og:title" content="{part} | {title}" />
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="{title}" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link href="../style-admin.css" rel="stylesheet" type="text/css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 	{scripts}
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script>
-	$(function(){
-		$.ajax({
-			url: '//center.gdsecret.net/update.php?json&ver=<?php echo sc_ver() .'&url='.sc_get_headurl(); ?>',
-			dataType: 'jsonp',
-			success: function(data){
-				if(!data.error){
-					if(!data.latest){
-						$('#main').prepend('<div id="update" class="alert alert-danger text-center"></div>');
-						$('#update').html(data.msg);
-					}
-					else {
-						$('footer').attr('title',data.msg);
-						$('#ver_check').addClass('label label-success').text('最新版');
-					}
-				}
-				else {
-					$('nav').prepend('<div id="update" class="alert alert-danger"></div>');
-					$('#update').html(data.msg);
-				}
-			}
-		});
-	});
-	</script>
 </head>
 <body>
-	<nav class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<a class="navbar-brand" href="index.php">{title}</a>
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav-collapse">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-			</div>
-			<div id="nav-collapse" class="collapse navbar-collapse">
-				<ul class="nav navbar-nav">
-					{nav}
-				</ul>
-			</div>
-		</div>
-	</nav>
+	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+		<a class="navbar-brand" href="#">{title}</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+		  <span class="navbar-toggler-icon"></span>
+		</button>
+			{nav}
+	  </nav>
 	<div id="main" class="container-fluid">
 		<div class="content">
 			{content}

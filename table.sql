@@ -10,7 +10,7 @@ CREATE TABLE `chat` (
   `mktime` datetime NOT NULL,
   `author` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE='InnoDB' DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 DROP TABLE IF EXISTS `forum`;
@@ -23,7 +23,7 @@ CREATE TABLE `forum` (
   `mktime` datetime NOT NULL,
   `author` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE='InnoDB' DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 DROP TABLE IF EXISTS `forum_block`;
@@ -33,7 +33,7 @@ CREATE TABLE `forum_block` (
   `position` tinyint(4) NOT NULL,
   `mktime` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE='InnoDB' DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `forum_block` (`id`, `blockname`, `position`, `mktime`) VALUES
 (1,	'預設區塊',	0,	now());
@@ -46,7 +46,7 @@ CREATE TABLE `forum_reply` (
   `mktime` datetime NOT NULL,
   `author` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE='InnoDB' DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 DROP TABLE IF EXISTS `member`;
@@ -62,7 +62,7 @@ CREATE TABLE `member` (
   `joined` datetime NOT NULL,
   `last_login` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE='InnoDB' DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 DROP TABLE IF EXISTS `notice`;
@@ -75,4 +75,4 @@ CREATE TABLE `notice` (
   `send_to` int(11) NOT NULL,
   `mktime` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE='InnoDB' DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

@@ -1,19 +1,24 @@
 (function($,window){
 	var sc_notice = function(){
 		var self = this;
-		$('.content').prepend('<span id="notifs-button"><a href="#">通知</a><span id="num">0</span></span><div id="notifs"></div>');
+		$('.avatar-menu .dropdown-item:eq(0)').after('<a id="notifs-button" href="#" class="dropdown-item"><i class="material-icons">notifications_none</i>通知<span id="num">0</span></a>');
+		$('#main > .content').append('<div id="notifs"></div>');
 		$('#notifs').html('<h4>通知</h4><div class="alert alert-success text-center">載入中...</div>');
 		this.count();
 		$("#notifs-button").click(function(e){
 			e.preventDefault();
 			$("#notifs").fadeToggle(300);
 			$("#notifs").css({
-				top: $('#notifs-button').offset().top + $('#notifs-button').outerHeight(),
+				top: $('#main').offset().top + 5,
 				left: $('#notifs-button').offset().left + $('#notifs-button').outerWidth() - $('#notifs').outerWidth()
 			});
+			if($('.navbar-toggler').is(':visible'))$('.navbar-toggler').click();
 			if($('#notifs').is(':visible')){
 				var last = window.last || 0 ;
 				self.load(last);
+				$('#main').one('click',function(){
+					$("#notifs").fadeToggle(300);
+				});
 			}
 		});
 	}
@@ -33,8 +38,11 @@
 			success: function(data) {
 				if(data.count>0){
 					$('#num').addClass('new').text(data.count);
-				}else{
+				}else if(data.count==0){
 					$('#num').removeClass('new').text(0);
+				}else if(data.count==-1){
+					alert('登入超時');
+					location.href='index.php';
 				}
 				self.count(data.count);
 			}

@@ -1,36 +1,4 @@
 <?php
-/*
-<Secret Center, open source member management system>
-Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-  If your software can interact with users remotely through a computer
-network, you should also make sure that it provides a way for users to
-get its source.  For example, if your program is a web application, its
-interface could display a "Source" link that leads users to an archive
-of the code.  There are many ways you could offer source, and different
-solutions will be better for different programs; see section 13 for the
-specific requirements.
-
-  You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary.
-For more information on this, and how to apply and follow the GNU AGPL, see
-<http://www.gnu.org/licenses/>.
-*/
-
 error_reporting(0);
 if(isset($_GET['step'])&&$_GET['step']>0&&$_GET['step']<=4){
 	$_step=abs($_GET['step']);
@@ -78,7 +46,7 @@ if($_step==4){
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Secret Center安裝程序</title>
+	<title>Secret Center安裝程式</title>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 	<style>
 		body{
@@ -123,7 +91,7 @@ if($_step==4){
 </head>
 <body>
 	<div id="main">
-		<h2 class="text-center">Secret Center安裝程序</h2>
+		<h2 class="text-center">Secret Center安裝程式</h2>
 		<?php if($_step==0){ ?>
 		<h3>授權條款</h3>
 		<p>Secret Center的授權條款，請務必詳細閱讀條款後再進行安裝。</p>
@@ -142,9 +110,9 @@ if($_step==4){
 			</tr>
 			<tr>
 			  <td>PHP</td>
-			  <td>5.3</td>
-			  <td>5.3~7</td>
-			  <td><?php check_php_version(5.3); ?></td>
+			  <td>5.6</td>
+			  <td>7~</td>
+			  <td><?php check_php_version(5.6); ?></td>
 			</tr>
 			<tr>
 			  <td>GD函式庫</td>
@@ -181,16 +149,6 @@ if($_step==4){
 			  <td>config-sample.php</td>
 			  <td>可讀</td>
 			  <td><?php check(is_readable('./config-sample.php')); ?></td>
-			</tr>
-			<tr>
-			  <td>Connections/SQL.php</td>
-			  <td>可寫</td>
-			  <td><?php check(is_writable('./Connections/SQL.php')); ?></td>
-			</tr>
-			<tr>
-			  <td>Connections/SQL-sample.php</td>
-			  <td>可讀</td>
-			  <td><?php check(is_readable('./Connections/SQL-sample.php')); ?></td>
 			</tr>
 			<tr>
 			  <td>inlude/avatar/</td>
@@ -306,16 +264,16 @@ if($_step==4){
 			if($error === false){
 		?>
 		<h3 class="text-success">安裝成功！</h3>
-		<p>Secret Center已安裝成功，為了保障您網站的安全，請在此選擇一種方式來處理此程序。</p>
+		<p>Secret Center已安裝成功，為了保障您網站的安全，請在此選擇一種方式來處理此程式。</p>
 		<form name="form1" method="post" action="install.php?step=4">
 			<div class="radio">
 				<label>
-					<input name="radio" type="radio" value="unlink" checked="checked">刪除此安裝程序
+					<input name="radio" type="radio" value="unlink" checked="checked">刪除此安裝程式
 				</label>
 			</div>
 			<div class="radio">
 				<label>
-					<input name="radio" type="radio" value="rename">重新命名此安裝程序
+					<input name="radio" type="radio" value="rename">重新命名此安裝程式
 				</label>
 			</div>
 			<input class="btn btn-primary" type="submit" value="確定！">

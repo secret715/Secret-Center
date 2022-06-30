@@ -1,47 +1,48 @@
 html, body {
-	font-size:15px;
-	width: 100%;
+	font-size:16px;
 	height: 100%;
 	background-color: #dcf0ff;
 	color: rgb(0,0,0);
-	line-height:24px;
-	font-family:微軟正黑體,新細明體,Arial;
+	font-family:Open Sans,'微軟正黑體','新細明體',Arial;
 }
 body {
-	padding-top: 50px;
+	width: 100%;
+	height: 100%;
+	padding-top: 3.7rem;
 }
 h1,h2,h3{
 	font-weight: normal;
 }
 ul li ul{
-	margin-bottom:2em;
+	margin-bottom:2rem;
 }
 ul li{
-	line-height:1.65em;
+	line-height:1.65rem;
 }
 #main{
-	width:80%;
+	width:90%;
 	margin:0 auto;
 	background-color: rgba(255,255,255,0.7);
-	padding:2em 2em 0 2em;
+	padding:1.5rem;
 	letter-spacing:0.2px;
 }
-#main .content{
-	min-height:calc(100vh - 12.5em);
+#main  > .content{
+	min-height:calc(100vh - 9.7rem);
 }
 footer{
-	margin-top:5em;
-	font-size:78%;
+	height:1rem;
+	font-size:0.8rem;
 	text-align:right;
 	border-top:3px solid rgb(0, 0, 0);
-	padding-top:1em;
+	margin-top:2rem;
 	clear:both;
 }
 .clearfix {
 	clear: both;
 }
 .avatar,.avatar-md{
-	width:80px;
+	width:70px;
+	border-radius:50%;
 }
 .avatar-lg{
 	width:120px;
@@ -52,17 +53,21 @@ footer{
 .avatar-xs{
 	width:30px;
 }
-.post {
-	background: #fff;
-	border-bottom: #aaa 1px solid;
-	border-radius: 0.25em;
-	padding: 0.5em;
-	margin-bottom: 2em;
-	/*box-shadow:0px 0px 3px rgba(200,200,200,0.5);*/
+.post{
+	margin-bottom: 2rem;
 }
-.post .con {
-	padding: 0.5em;
-	min-height:3em;
+.post > .content {
+	background: #fff;
+	padding: 0.5rem 0.5rem 0.5rem 1rem;
+	width:calc(100% - 120px);
+	min-height:100%;
+}
+.post > .info {
+	padding: 0.5rem;
+	/*border-right:1px solid rgb(225,225,225);*/
+	text-align:center;
+	width:120px;
+	min-height:100%;
 }
 form .captcha {
 	margin: 0.5em 0;
@@ -71,12 +76,6 @@ form .captcha {
 
 
 #notifs-button {
-	background: #fff;
-	color: #000;
-	-webkit-border-radius: 0.25em;
-	-moz-border-radius: 0.25em;
-	border-radius: 0.25em;
-	border: #000 1px solid;
 	float: right;
 }
 
@@ -145,89 +144,90 @@ form .captcha {
 .form-xs{
 	max-width:400px;
 }
-#loginbox{
-	margin-top:50px;
-}
-#loginbox .form-control{
-	max-width:240px;
-}
-#loginbox .form-group{
-	margin-bottom:20px;
-}
 
 
 #chat .msg-panel{
 	color:#000000;
 	background-color:#ffffff;
 	padding: 0.3em 0.5em 0.3em 0.5em;
-	max-height: 450px;
+	max-height: calc( 100vh - 17rem);
 	overflow: auto;
 }
 #chat .msg-panel+form{
 	margin-top:1em;
 }
 #chat .msg{
-	padding:0.5em;
+	padding:0.2em;
 	font-size:106%;
 }
-#chat .msg+.msg{
-	border-top: #eee 1px solid;
+#chat .msg > .card{
+	max-width:90%;
 }
 #chat .msg .chat-author{
-	color: #B0B;
-	font-weight: bold;
-	margin-right:1em;
-}
-#chat .msg .chat-mktime{
-	text-align:right;
-	float: right;
+	color:gray;
+	font-weight: 200;
+	font-size:0.75rem;
 }
 
 
-/*覆蓋BS 3的CSS 開始*/
-.page-header{
-	margin-top:0;
-}
-/*覆蓋BS 3的CSS 結束*/
-
-@media screen and (max-width:768px){
-	body {
-		padding-top: 50px;
-	}
-	footer{
-		margin-top:1em;
-		padding-top:1em;
-		clear:both;
+@media screen and (max-width: 767.98px) { 
+	body{
+		padding-top: 3.5rem;
 	}
 	#main{
 		width:100%;
-		-moz-box-sizing:border-box;
-		-webkit-box-sizing:border-box;
-		box-sizing:border-box;
-		border-radius:0;
-		padding:1em;
 	}
-	#main .content{
-		min-height:calc(100vh - 50px - 6em);
+	#main > .content{
+		min-height:calc(100vh - 9.5em);
+	}
+}
+
+@media screen and (max-width:575.98px){
+	html, body {
+		font-size:15px;
+	}
+	nav .navbar-toggler{
+		display:none;
+	}
+	#main{
+		padding-bottom:4.5rem;
+	}
+	#main > .content{
+		 min-height: calc(100vh - 11rem);
+	}   
+	footer{
+		height:0.5rem;
+		border:0;
+		margin-top:1rem;
+	} 
+	footer p{
+		color:#777;
+		text-align:center;
+		margin:0;
 	}
 	#chat .msg-panel{
-		max-height: 50vh;
+		max-height: calc(100vh - 18rem);
 	}
 	.avatar{
 		width:50px;
+	}
+	.avatar-lg{
+		width:100px;
+	}
+	.avatar-sm{
+		width:40px;
+	}
+	.avatar-xs{
+		width:25px;
 	}
 	.post img{
 		max-width:100%;
 		height:auto !important;
 	}
-	.post .con {
-		padding: 0;
-		min-height:1em;
+	.post > .content {
+		width:100%;
 	}
-	.post{
-		width: calc(100% + 2em);
-		margin-left:-1em;
-		margin-right:-1em;
-		border-radius:0;
+	.post > .info {
+		width:100%;
 	}
 }

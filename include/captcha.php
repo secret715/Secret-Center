@@ -1,49 +1,6 @@
 <?php
-/*
-<Secret Center, open source member management system>
-Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-  If your software can interact with users remotely through a computer
-network, you should also make sure that it provides a way for users to
-get its source.  For example, if your program is a web application, its
-interface could display a "Source" link that leads users to an archive
-of the code.  There are many ways you could offer source, and different
-solutions will be better for different programs; see section 13 for the
-specific requirements.
-
-  You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary.
-For more information on this, and how to apply and follow the GNU AGPL, see
-<http://www.gnu.org/licenses/>.
-*/
-
+require_once('../config.php');
 if(!session_id()) session_start();
-
-function captcha(){
-	$_array = array('a','b','c','d','e','f','g','h','j','k','m','n','p','q','r','s','t','u','v','w','x','y','z',2,3,4,5,6,7,8,9);//去除 1 、 L 、 l 、 O 跟 0
-	$captcha = '';
-	
-	for($i = 0; $i < 6; $i++){
-		$captcha .= $_array[mt_rand(0, count($_array) - 1)];
-	}
-	
-	$captcha = strtoupper($captcha);
-    $_SESSION['captcha'] = $captcha;
-}
 
 function genColor($r, $br = 0, $g = 0, $bg = 0, $b = 0, $bb = 0, $a = 0){
 	global $image;
@@ -59,11 +16,11 @@ function genColor($r, $br = 0, $g = 0, $bg = 0, $b = 0, $bb = 0, $a = 0){
 	return imagecolorallocatealpha($image, $_r, $_g, $_b, $a);
 }
 
-captcha();
+sc_captcha();
 
-$width =250;
-$height = 60;
-$font=array('RiseStarHandRegular.otf');
+$width =150;
+$height = 50;
+$font=dirname(__FILE__) .'/DejaVuSans.ttf';
 $image = imagecreatetruecolor($width, $height);
 
 $text = $_SESSION['captcha'];
@@ -82,19 +39,19 @@ for($a = 1; $a <= $pa; $a++){
 for($i=0;$i<3;$i++){
 	imagettftext(
 		$image,
-		$height * 0.4,
+		$height * 0.3,
 		0,
 		mt_rand($width * (0.05+$i*0.3), $width * (0.25*$i+0.3)),
-		mt_rand($height * 0.35, $height * 0.92),
-		genColor(mt_rand(0,200)),
-		$font[array_rand($font)],
+		mt_rand($height * 0.36, $height * 0.93),
+		genColor(mt_rand(50,200)),
+		$font,
 		substr($text, $i*2, 2)
 	);
 }
 
 
-for($i = 0; $i < 8; $i++){
-	imagefilledarc($image, mt_rand($width * 0.15, $width * 0.8), mt_rand($height * 0.15, $height * 0.8), $height * 0.4, $height * 0.4, 0, 360, genColor(255, 180, 255, 110, 255, 90, 110), IMG_ARC_PIE);
+for($i = 0; $i < 9; $i++){
+	imagefilledarc($image, mt_rand($width * 0.15, $width * 0.8), mt_rand($height * 0.15, $height * 0.8), $height * 0.4, $height * 0.4, 0, 360, genColor(225, 120, 225, 100, 225, 90, 70), IMG_ARC_PIE);
 }
 
 header("Content-type: image/png");

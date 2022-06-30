@@ -1,77 +1,189 @@
 <?php
-/*
-<Secret Center, open source member management system>
-Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-  If your software can interact with users remotely through a computer
-network, you should also make sure that it provides a way for users to
-get its source.  For example, if your program is a web application, its
-interface could display a "Source" link that leads users to an archive
-of the code.  There are many ways you could offer source, and different
-solutions will be better for different programs; see section 13 for the
-specific requirements.
-
-  You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary.
-For more information on this, and how to apply and follow the GNU AGPL, see
-<http://www.gnu.org/licenses/>.
-*/
-
-class Database {
+class Database{
 	private $conn;
-	private $addr;
+	private $db;
 	private $user;
 	private $pass;
-	private $db;
+	private $host;
+	
 
-	public function __construct($addr,$user,$pass,$db){
-		$this->addr = $addr;
+	public function __construct($db,$user,$pass,$host){
+		$this->db = $db;
 		$this->user = $user;
 		$this->pass = $pass;
-		$this->db = $db;
-
-		$this->conn = new mysqli($addr,$user,$pass,$db);
+		$this->host = $host;
 		
-		if($this->conn->connect_error !== null){
-			throw new Exception($this->conn->connect_error);
-		}
+		$this->connect();
 	}
 	
-	private function reconnect(){
-		$this->conn = new mysqli($this->addr,$this->user,$this->pass,$this->db);
-	}
-
+	private function connect($persistant = false){
+		$db = $this->db;
+		$user = $this->user;
+		$pass = $this->pass;
+		$host = $this->host;
+		
+        $this->conn = $persistant ? new mysqli('p:'.$db,$user,$pass,$host) : new mysqli($db,$user,$pass,$host);
+        $this->conn->set_charset('utf8mb4');
+        
+		if($this->conn->connect_error !== null){
+			throw new Exception($this->conn->connect_error);
+		}else{
+			return true;
+		}
+    }
+	
 	private function checkConn(){
 		return $this->conn->ping();
 	}
 
 	public function query($query,$data = array()){
-		if(!$this->checkConn()) $this->reconnect();
+		if(!$this->checkConn()) $this->connect();
 		
-		foreach($data as $k=>$d){
-			$data[$k] = $this->conn->real_escape_string($d);
-		}
+		$data = $this->escapeString($data);
+		$this->result = $this->conn->query(vsprintf($query,$data));
 		
-		$result = $this->conn->query(vsprintf($query,$data));
-		
-		if($result === false){
+		if($this->result === false){
 			throw new Exception($this->conn->error);
+		}elseif (isset($this->result->num_rows)&&$this->result->num_rows > 0) {
+			return $this->fetchAssocArray();
+		}else{
+			return $this->result;
 		}
-		
-		return $result;
 	}
+	
+	public function insert($table,$data = array(),$other = false){
+		$data=$this->escapeString($data);
+        $query = "INSERT INTO `{$table}` SET ";
+		$first=true;
+        foreach ($data as $_k => $_v) {
+			if(!$first){
+				$query.=' , ';
+			}
+            $query .= "`{$_k}` = '{$_v}'";
+			$first=false;
+		}
+		if($other){
+			 $query .= " {$other}"; 
+		}
+
+        return $this->query($query);
+	}
+	
+	
+	public function delete($table,$data = array(), $limit = false, $other = false){
+		$data=$this->escapeString($data);
+        $query = "DELETE FROM `{$table}` WHERE ";
+		$first=true;
+        foreach ($data as $_k => $_v) {
+			if(!$first){
+				$query.=' AND ';
+			}
+            $query .= "`{$_k}` = '{$_v}'";
+			$first=false;
+		}
+		if($other){
+			 $query .= " {$other}"; 
+		}
+		if($limit){
+			 $query .= " LIMIT {$limit}";
+		}
+        return $this->query($query);
+	}
+	
+	public function select($table,$data = array(), $order_by = false, $sort = true, $limit = false, $other = false){
+		$data=$this->escapeString($data);
+        $query = "SELECT * FROM `{$table}` ";
+		$first=true;
+        foreach ($data as $_k => $_v) {
+			if(!$first){
+				$query.=' AND ';
+			}else{
+				$query.=' WHERE ';
+			}
+            $query .= "`{$_k}` = '{$_v}'";
+			$first=false;
+		}
+		if($other){
+			 $query .= " {$other}"; 
+		}
+		if($order_by){
+			 $query .= " ORDER BY `{$order_by}`"; 
+			if($sort){
+				 $query .= " ASC"; 
+			}else{
+				 $query .= " DESC";
+			}
+		}
+		if($limit){
+			 $query .= " LIMIT {$limit}";
+		}
+		$return = $this->query($query);
+		
+        return $return;
+	}
+	
+	
+	public function update($table,$data = array(),$condition = array(), $other = false){
+		$data=$this->escapeString($data);
+		$condition=$this->escapeString($condition);
+        $query = "UPDATE `{$table}` SET ";
+		$first=true;
+        foreach ($data as $_k => $_v) {
+			if(!$first){
+				$query.=' , ';
+			}
+            $query .= "`{$_k}` = '{$_v}'";
+			$first=false;
+		}
+		$query .= " WHERE ";
+		$first=true;
+        foreach ($condition as $_k => $_v) {
+			if(!$first){
+				$query.=' AND ';
+			}
+            $query .= "`{$_k}` = '{$_v}'";
+			$first=false;
+		}
+		if($other){
+			 $query .= " {$other}"; 
+		}
+        return $this->query($query);
+	}
+	
+	public function escapeString($data){
+		if(is_array($data)){
+			foreach($data as $k=>$d){
+				$data[$k] = $this->conn->real_escape_string($d);
+			}
+		}else{
+			$data = $this->conn->real_escape_string($data);
+		}
+		return $data;
+	}
+	
+	
+	public function fetchAssocArray(){
+        $this->fetchAssocArray = array();
+        while ($data = $this->result->fetch_assoc()) {
+            $this->fetchAssocArray[] = $data;
+        }
+        return $this->fetchAssocArray;
+    }
+	
+	public function numRows(){
+		return $this->result->num_rows;
+	}
+	public function lastInsertID(){
+		return $this->conn->insert_id;
+	}
+	public function beginTransaction() {
+		return $this->conn->begin_transaction();
+	}
+	public function commit($flags = 0 , $name =null) {
+		return $this->conn->commit($flags,$name);
+	}
+	public function rollback($flags = 0 , $name =null) {
+		return $this->conn->rollback($flags,$name);
+	}
+	
 };

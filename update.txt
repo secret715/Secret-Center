@@ -1,0 +1,74 @@
+ALTER TABLE `member`
+ADD `nickname` varchar(255) COLLATE 'utf8_unicode_ci' NOT NULL AFTER `password`;
+
+ALTER TABLE `member`
+CHANGE `web_site` `remark` varchar(255) COLLATE 'utf8mb4_unicode_ci' NULL AFTER `rekey`;
+
+ALTER TABLE `forum_block`
+ENGINE='InnoDB';
+
+ALTER TABLE `forum`
+ENGINE='InnoDB';
+
+ALTER TABLE `forum`
+ADD FOREIGN KEY (`block`) REFERENCES `forum_block` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE `forum_reply`
+ENGINE='InnoDB';
+
+ALTER TABLE `forum_reply`
+ADD FOREIGN KEY (`post_id`) REFERENCES `forum` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
+CREATE TABLE `login` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `owner` int(11) NOT NULL,
+  `login_time` datetime NOT NULL,
+  `logout_time` datetime NOT NULL,
+  `ip` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `owner` (`owner`),
+  CONSTRAINT `login_ibfk_1` FOREIGN KEY (`owner`) REFERENCES `member` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+ALTER TABLE `forum_reply`
+CHANGE `content` `content` text COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `post_id`,
+COLLATE 'utf8mb4_unicode_ci';
+
+ALTER TABLE `forum_block`
+CHANGE `blockname` `blockname` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `id`,
+COLLATE 'utf8mb4_unicode_ci';
+
+ALTER TABLE `member`
+DROP `last_login`;
+
+
+ALTER TABLE `member`
+CHANGE `username` `username` varchar(30) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `id`,
+CHANGE `password` `password` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `username`,
+CHANGE `nickname` `nickname` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `password`,
+CHANGE `email` `email` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `nickname`,
+CHANGE `avatar` `avatar` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `email`,
+CHANGE `rekey` `rekey` varchar(40) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `avatar`;
+
+ALTER TABLE `member`
+ADD `qrcode` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `rekey`;
+
+ALTER TABLE `member`
+COLLATE 'utf8mb4_unicode_ci';
+
+
+ALTER TABLE `forum`
+CHANGE `title` `title` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `id`,
+CHANGE `content` `content` text COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `title`,
+COLLATE 'utf8mb4_unicode_ci';
+
+ALTER TABLE `chat`
+CHANGE `content` `content` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `id`,
+COLLATE 'utf8mb4_unicode_ci';
+
+ALTER TABLE `notice`
+CHANGE `url` `url` varchar(255) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `id`,
+CHANGE `content` `content` text COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `url`,
+COLLATE 'utf8mb4_unicode_ci';

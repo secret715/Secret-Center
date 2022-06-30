@@ -1,123 +1,98 @@
 <?php
-/*
-<Secret Center, open source member management system>
-Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-  If your software can interact with users remotely through a computer
-network, you should also make sure that it provides a way for users to
-get its source.  For example, if your program is a web application, its
-interface could display a "Source" link that leads users to an archive
-of the code.  There are many ways you could offer source, and different
-solutions will be better for different programs; see section 13 for the
-specific requirements.
-
-  You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary.
-For more information on this, and how to apply and follow the GNU AGPL, see
-<http://www.gnu.org/licenses/>.
-*/
-
 function sc_ver(){
-	return '9.2.2';
+	return '9.5';
 }
 
 function sc_keygen($_value=''){
 	return str_shuffle(str_replace('=','',base64_encode(mt_rand(100,999).time()).sha1(mt_rand().md5($_value).uniqid())));
 }
+function sc_db_conn(){
+	global $center;
+	$SQL = new Database($center['database']['host'],$center['database']['username'],$center['database']['password'],$center['database']['name']);
+	return $SQL;
+
+}
+function sc_user_exist($_username,$_email=false){
+	$SQL=sc_db_conn();
+	$SQL->select('member',array('username'=>sc_namefilter($_username)));
+	if($SQL->numRows()>0){
+		if($_email!=false){
+			$SQL->select('member',array('email'=>sc_namefilter($_email)));
+			if($SQL->numRows()>0){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return true;
+		}
+	}else{
+		return false;
+	}
+}
 function sc_login($_username,$_password){
-	global $SQL;
+	$SQL=sc_db_conn();
 	if (isset($_username)&&isset($_password)) {
-		$login = $SQL->query("SELECT `id`,`username`, `password`, `level` FROM `member` WHERE (`username` = '%s' OR `email` = '%s') AND `password` = '%s'",array(
+		$login = $SQL->query("SELECT `id`,`username`,`nickname`, `password`, `level`, `avatar` FROM `member` WHERE (`username` = '%s' OR `email` = '%s') AND `password` = '%s'",array(
 			$_username,
 			$_username,
 			sc_password($_password,$_username)
 		));
-		
-		
-		//[相容] 7.3 版以前密碼----開始
-		if ($login->num_rows <1) {
-			$login = $SQL->query("SELECT `id`,`username`, `password`, `level` FROM `member` WHERE (`username` = '%s' OR `email` = '%s') AND `password` = '%s'",array(
-			$_username,
-			$_username,
-			md5(sha1($_password))
-			));
-			if($login->num_rows > 0){
-				$SQL->query("UPDATE `member` SET `password` = '%s' WHERE `username` = '%s'",array(sc_password($_password,$_username),$_username));
+		if ($SQL->numRows() > 0) {
+			
+			if($SQL->query("INSERT INTO `login` (`owner`,`login_time`, `logout_time`, `ip`) VALUES ('%d',now(), '%s', '%s')",array($login[0]['id'],'0000-00-00 00:00:00',sc_get_ip()))){
+				$_SESSION['center']['username'] = strtolower($_username);
+				$_SESSION['center']['nickname'] =  $login[0]['nickname'];
+				$_SESSION['center']['id'] = $login[0]['id'];
+				$_SESSION['center']['level'] = $login[0]['level'];
+				$_SESSION['center']['avatar'] = $login[0]['avatar'];
+				setcookie("login", time(), time()+10800);
+				return true;
+			} else{
+				return -2;
 			}
-		}//[相容] 7.3 版以前密碼----結束
-		
-		
-		if ($login->num_rows > 0) {
-			$info = $login->fetch_assoc();
-			
-			$SQL->query("UPDATE `member` SET `last_login` = now() WHERE `username` = '%s'",array($info['username']));
-			
-			$_SESSION['Center_Username'] = strtolower($_username);
-			$_SESSION['Center_Id'] = $info['id'];
-			$_SESSION['Center_UserGroup'] = $info['level'];
-			$_SESSION['Center_Auth'] = substr(sc_keygen(),0,5);
-			setcookie("login", time(), time()+10800);
-			return 1;
-		}
-		else {
+		} else {
 			return -1;
 		}
 	}
 }
 function sc_loginout(){
-	$_SESSION['Center_Username'] = NULL;
-	$_SESSION['Center_Id'] = NULL;
-	$_SESSION['Center_UserGroup'] = NULL;
-	$_SESSION['Center_Auth'] = NULL;
-	unset($_SESSION['Center_Username']);
-	unset($_SESSION['Center_Id']);
-	unset($_SESSION['Center_UserGroup']);
-	unset($_SESSION['Center_UserGroup']);
-	setcookie("login", "", time()-10800);
-	return 1;
+	$SQL=sc_db_conn();
+	if(!isset($_SESSION['center']['id'])||!$SQL->query("UPDATE `login` SET `logout_time`=now() WHERE `owner`='%s' AND `logout_time`='0000-00-00 00:00:00' AND `ip`='%s'",array($_SESSION['center']['id'],sc_get_ip()))){
+		//return -1;
+	}
+	unset($_SESSION['center']);
+	setcookie("login", "", time()-60);
+	return true;
+}
+function sc_get_result($_query,$_value=array()){
+	if(!isset($SQL))$SQL=sc_db_conn();
+	$_result['row'] = $SQL->query($_query,$_value);
+	$_result['num_rows'] = $SQL->numRows();
+	return $_result;
 }
 
-function sc_register($_username,$_password,$_email,$_web_site='',$_level=1){
-	global $SQL;
+function sc_register($_username,$_password,$_email,$_nickname,$_level=1){
 	global $center;
 	if($center['register'] == 1){
 		if(isset($_username) && (trim(sc_namefilter($_username)) != '') && isset($_password) && (trim($_password) != '')&& filter_var($_email, FILTER_VALIDATE_EMAIL)){
-			if($_web_site!='' && !filter_var($_web_site, FILTER_VALIDATE_URL)){
-				return -2;
+			
+			if(sc_user_exist($_username,$_email)){
+				return -1;
 			}
 			
 			$_username=sc_namefilter($_username);
 			
-			$auth_name = $SQL->query("SELECT `username` FROM `member` WHERE `username` = '%s' OR `email` = '%s'", array($_username,$_email));
-			if($auth_name->num_rows > 0){
-				return -1;
-				exit;
-			}
-			
-			$SQL->query("INSERT INTO `member` (`username`, `password`, `email`, `web_site`, `avatar`, `rekey`, `level` , `joined` ,`last_login`) VALUES ('%s', '%s', '%s', '%s', 'default.png', '%s', '%d', now(), now())",array(
-				sc_namefilter($_username),
+			$SQL=sc_db_conn();
+			return $SQL->query("INSERT INTO `member` (`username`, `password`, `email`, `nickname`, `avatar`, `rekey`, `qrcode`,`level` , `joined`) VALUES ('%s', '%s', '%s', '%s', 'default.png', '%s','%s','%d', now())",array(
+				$_username,
 				sc_password($_password,$_username),
 				$_email,
-				$_web_site,
+				sc_namefilter($_nickname),
 				substr(sc_keygen($_username),0,16),
+				substr(sc_keygen(),0,4),
 				$_level
 			));
-			
-			return 1;
 		}else{
 			return -2;
 		}
@@ -125,23 +100,81 @@ function sc_register($_username,$_password,$_email,$_web_site='',$_level=1){
 		return -3;
 	}
 }
-
-function sc_get_result($_query,$_value=array()){
-	global $SQL;
-	$_result['query'] = $SQL->query($_query,$_value);
-	$_result['row'] = $_result['query']->fetch_assoc();
-	$_result['num_rows'] = $_result['query']->num_rows;
+function sc_get_ip(){
+	if (!empty($_SERVER['HTTP_CLIENT_IP'])){
+		$_ip=$_SERVER['HTTP_CLIENT_IP'];
+	}elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+		$_ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+	}else{
+		$_ip=$_SERVER['REMOTE_ADDR'];
+	}
+	return $_ip;
+}
+function sc_csrf($_renew=false){
+	if(!isset($_SESSION['auth'])||$_renew){
+		$_SESSION['auth']=substr(sc_keygen(),0,5);
+	}
+	return $_SESSION['auth'];
+}
+function sc_csrf_auth(){
+	if(!isset($_SESSION['auth'])){
+		return false;
+	}
+	if(isset($_GET[$_SESSION['auth']])){
+		return true;
+	}else{
+		return false;
+	}
+}
+function sc_form_inputs_exist($_g=array(),$_p=array(),$_reutrn=false){
+	$_not_exist=array();
+	$_not_exist['GET']=array();
+	$_not_exist['POST']=array();
+	foreach($_g as $_v){
+		if(!isset($_GET[$_v])){
+			$_not_exist['GET'][]=$_v;
+		}
+	}
+	foreach($_p as $_v){
+		if(!isset($_POST[$_v])){
+			$_not_exist['POST'][]=$_v;
+		}
+	}
 	
-	return $_result;
+	if(count($_not_exist['GET'])+count($_not_exist['POST'])>0){
+		if($_reutrn){
+			return $_not_exist;
+		}else{
+			return false;
+		}
+	}else{
+		return true;
+	}
 }
-
-function sc_member_level_array(){
-	return array(0=>'禁言',1=>'一般會員',2=>'進階會員',3=>'高級會員',9=>'管理員');
+function sc_level_auth($_min_level,$_header_to=false,$_exit=false){
+	if(!isset($_SESSION['center'])){
+		if($_header_to!=false){
+			header("location: $_header_to");
+			exit;
+		}
+		if($_exit)exit;
+		return false;
+	}else{
+		if($_SESSION['center']['level']<$_min_level){
+			if($_header_to!=false){
+				header("location: $_header_to");
+				exit;
+			}
+			if($_exit)exit;
+			return false;
+		}else{
+			return true;
+		}
+	}
 }
-
-function sc_member_level($_level){
-	$_level_array=sc_member_level_array();
-	return $_level_array[$_level];
+function sc_member_level_array($_value=NULL){
+	$_level=array(0=>'禁言',1=>'一般會員',2=>'進階會員',3=>'高級會員',9=>'管理員');
+	return $_value==NULL ? $_level : $_level[$_value];
 }
 
 function sc_namefilter($_value){
@@ -160,16 +193,25 @@ function sc_get_headurl(){
 		if($_SERVER['HTTPS'] == 'on'){
 			$_prefix='https';
 		}
+	}elseif(isset($_SERVER['HTTP_CF_VISITOR'])){
+		$_cf_visitor = json_decode($_SERVER['HTTP_CF_VISITOR']);
+		if (isset($_cf_visitor->scheme) && $_cf_visitor->scheme == 'https') {
+		  $_prefix='https';
+		}
 	}
 	$url="$_prefix://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}";
 	$po= strripos($url,'/');
 	return substr($url,0,$po).'/';
 }
 
+function sc_avatar($_value=NULL,$_prefix=NULL){
+	return $_value==NULL ? sc_get_headurl().$_prefix.'/include/avatar/default.png' : sc_get_headurl().$_prefix.'/include/avatar/'.$_value;
+}
+
 function sc_add_notice($_url,$_content,$_send_from,$_send_to){
 	global $SQL;
 	$SQL->query("INSERT INTO `notice` ( `url`,`content`, `status`, `send_from`,`send_to`,`mktime`) VALUES ('%s','%s',0,'%d','%d',now())",array($_url,$_content,$_send_from,$_send_to));
-	return 1;
+	return true;
 }
 
 function sc_xss_filter($_content){
@@ -186,43 +228,44 @@ function sc_xss_filter($_content){
 }
 
 function sc_add_forum_post($_title,$_content,$_block,$_id,$_level){
-	global $SQL;
+	$SQL=sc_db_conn();
 	if(array_key_exists($_level,sc_member_level_array())){
-		$SQL->query("INSERT INTO `forum` (`title`, `content`,`block`, `level`, `mktime`, `author`) VALUES ('%s', '%s','%d', '%d', now(),'%d')",array(
+		return $SQL->query("INSERT INTO `forum` (`title`, `content`,`block`, `level`, `mktime`, `author`) VALUES ('%s', '%s','%d', '%d', now(),'%d')",array(
 			htmlspecialchars($_title),
 			sc_xss_filter($_content),
 			abs($_block),
 			abs($_level),
 			abs($_id)
 		));
-		return 1;
 	}else{
-		return -1;
+		return false;
 	}
 }
 function sc_add_forum_block($_blockname,$_position=0){
 	global $SQL;
 	$SQL->query("INSERT INTO `forum_block` (`blockname`, `position`, `mktime`) VALUES ('%s', '%d', now())",array(sc_namefilter($_blockname),abs($_position)));
-	return 1;
+	return true;
 }
 
 function sc_tag_member($_content,$_notice_url,$_notice_content,$_id){
 	preg_match_all('/@[A-Za-z0-9]{0,30}/',$_content,$_tag);
 	foreach ($_tag[0] as $_v){
 		$_member = sc_get_result("SELECT `id` FROM `member` WHERE `username` = '%s'",array(ltrim($_v,'@')));
-		sc_add_notice($_notice_url,$_notice_content,$_id,$_member['row']['id']);
+		if($_member['num_rows']>0){
+			sc_add_notice($_notice_url,$_notice_content,$_id,$_member['row'][0]['id']);
+		}
 	}
-	return 1;
+	return true;
 }
 function sc_avatar_url($_id,$_only_file_name=false){
 	$_avatar = sc_get_result("SELECT `avatar` FROM `member` WHERE `id` = '%s'",array(abs($_id)));
 	if($_avatar['num_rows']>0){
 		if($_only_file_name){
-			return $_avatar['row']['avatar'];
+			return $_avatar['row'][0]['avatar'];
 		}else{
 			
 			$_headurl = str_replace(array('/include','/admin','/ajax'),array('','',''),sc_get_headurl());
-			return $_headurl.'include/avatar/'.$_avatar['row']['avatar'];
+			return $_headurl.'include/avatar/'.$_avatar['row'][0]['avatar'];
 		}
 	}else{
 		return -1;
@@ -302,59 +345,6 @@ function sc_avatar_crop($_image,$_image_type,$_new_image_file,$_new_size,$_crop_
 	}
 	return true;
 }
-function sc_deletedir($dir) {
-    if ($handle = opendir($dir)) {
-        while(false !== ($item = readdir($handle))) {
-            if ($item != "." && $item != "..") {
-                if (is_dir($dir."/".$item)) {
-                    deletedir($dir."/".$item);
-                } else {
-                    unlink($dir."/".$item);
-                }
-            }
-        }    
-        closedir($handle);
-        rmdir($dir);
-      }
-}
-
-function sc_page_pagination($_href,$_now_page,$_data_num,$_page_limit,$_href_parameters=''){
-	$_return='';
-	$_now_page=abs($_now_page);
-	$page_num= ceil($_data_num / $_page_limit);
-	if($page_num>=7){
-		$_return.='<ul class="pagination">';
-		$_array=array(1,2,3,$_now_page-2,$_now_page-1,$_now_page,$_now_page+1,$_now_page+2,$page_num-2,$page_num-1,$page_num);
-		$_array=array_unique($_array);
-		$_last_value=0;
-		foreach ($_array as $value){
-			if($value>0&&$value<=$page_num){
-				if($_last_value+1!=$value){
-					$_return.='<li><span>...</span></li>';
-				}
-				if($_now_page==$value){
-					$_return.='<li class="active"><span>'.$value.'</span></li>';
-				}else{
-					$_return.='<li><a href="'.$_href.'?page='.$value.$_href_parameters.'">'.$value.'</a></li>';
-				}
-				$_last_value=$value;
-			}
-		}
-		$_return.='</ul>';
-	}elseif($page_num>1){
-		$_return.='<ul class="pagination">';
-		for($i=1;$i<=$page_num;$i++){
-			if($_now_page!=$i){
-				$_return.='<li><a href="'.$_href.'?page='.$i.$_href_parameters.'">'.$i.'</a></li>';
-			}else{
-				$_return.='<li class="active"><span>'.$i.'</span></li>';
-			}
-		}
-		$_return.='</ul>';
-	}
-	return $_return;
-}
-
 
 function lt_replace($str){ 
     return preg_replace("/<([^\/[:alpha:]])/", '&lt;\\1', $str); 
@@ -363,4 +353,25 @@ function lt_replace($str){
 function sc_removal_escape_string($data){
 	$data = lt_replace($data);
     return stripslashes($data);
+}
+
+
+function sc_captcha($_length=6,$_type=2){
+	// type 為驗證碼字串的形式(是否包含英文數字...)
+	$_text[0]=array(0,1,2,3,4,5,6,7,8,9);//純數字
+	$_text[1]=array('a','b','c','d','e','f','g','h','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');//純英文
+	$_text[2]=array('a','b','c','d','e','f','g','h','j','k','m','n','p','q','r','s','t','u','v','w','x','y','z',2,3,4,5,6,7,8,9);//英文+數字(去除 L 、 1 、 O 跟 0)
+	
+	if($_length<=0||!isset($_text[$_type]))return false;
+	
+	
+	$_array = $_text[$_type];
+	
+	$_captcha = '';
+	for($_i = 0; $_i < $_length; $_i++){
+		$_captcha .= $_array[mt_rand(0, count($_array) - 1)];
+	}
+	
+	$_captcha = strtoupper($_captcha);
+    $_SESSION['captcha'] = $_captcha;
 }

@@ -1,147 +1,149 @@
 <?php
-/*
-<Secret Center, open source member management system>
-Copyright (C) 2012-2017 Secret Center開發團隊 <http://center.gdsecret.net/#team>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-  If your software can interact with users remotely through a computer
-network, you should also make sure that it provides a way for users to
-get its source.  For example, if your program is a web application, its
-interface could display a "Source" link that leads users to an archive
-of the code.  There are many ways you could offer source, and different
-solutions will be better for different programs; see section 13 for the
-specific requirements.
-
-  You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary.
-For more information on this, and how to apply and follow the GNU AGPL, see
-<http://www.gnu.org/licenses/>.
-*/
-
-require_once('Connections/SQL.php');
 require_once('config.php');
 require_once('include/view.php');
 
-if(!isset($_SESSION['Center_Username'])){
-    header("Location: index.php?login");
-	exit;
-}
+sc_level_auth(-1,'index.php?n');
 
-if((!isset($_GET['id']))or($_GET['id']=='')){
-    header("Location: forum.php");
-	exit;
-}
-
-if(isset($_GET['post'])){
-	if(isset($_GET['reply'])){
-		header("Location: forum.php");
+if(isset($_GET['new'])){
+	if(!sc_level_auth(0)){
+		header("Location: forum.php?banned");
 		exit;
 	}
-	
-	$_post = sc_get_result("SELECT * FROM `forum` WHERE `id` = '%d' AND `author` = '%d'",array($_GET['id'],$_SESSION['Center_Id']));
+}
 
-	$_block = sc_get_result("SELECT * FROM `forum_block` ORDER BY `position` ASC");
-	
-	if($_post['num_rows']<=0){
-		header("Location: forum.php");
-		exit;
-	}
-	
-	if(isset($_POST['title']) && isset($_POST['content']) && trim(htmlspecialchars($_POST['title'])) != '' && trim(strip_tags($_POST['content']),"&nbsp;") != '' && isset($_GET[$_SESSION['Center_Auth']])) {
-		
-		$_block_auth = $SQL->query("SELECT * FROM `forum_block` WHERE `id` = '%d'",array(abs($_POST['block'])))->num_rows;
-		if($_block_auth<=0){
-			die;
+if(isset($_GET['id'])){
+	$_GET['id']=abs(intval($_GET['id']));
+}
+
+$_GET['block']=isset($_GET['block']) ? abs(intval($_GET['block'])):0;
+
+if(isset($_POST['title']) && isset($_POST['content']) && isset($_POST['block']) && isset($_POST['level']) && trim(htmlspecialchars($_POST['title'])) != '' && trim($_POST['content'],"&nbsp;") != '' && sc_csrf_auth()) {
+	$_POST['block']=abs(intval($_POST['block']));
+	if($center['forum']['captcha']==1){
+		if(strtoupper($_POST['captcha']) != strtoupper($_SESSION['captcha'])){
+			setcookie('content',$_POST['content'],time()+600);
+			header("Location: forum.php?newpost&captcha");
+			exit;
 		}
-		
-		$SQL->query("UPDATE `forum` SET `title` = '%s', `content` = '%s',`block`='%d',`level`='%d' WHERE `id` = '%d' AND `author` = '%d'",array(
-			htmlspecialchars($_POST['title']),
-			sc_xss_filter($_POST['content']),
-			abs($_POST['block']),
-			abs($_POST['level']),
-			$_GET['id'],
-			$_SESSION['Center_Id']
-		));
-		header("Location: forumview.php?editok&id=".$_post['row']['id']);
 	}
 	
-}elseif(isset($_GET['reply'])) {
-	if(isset($_GET['post'])){
-		header("Location: forum.php");
+	$_block=sc_get_result("SELECT * FROM `forum_block` WHERE `id`='%d'",array($_POST['block']));
+	if($_block['num_rows']>0){
+		sc_add_forum_post($_POST['title'],$_POST['content'],$_POST['block'],$_SESSION['center']['id'],$_POST['level']);
+		header("Location: forum.php?success&fid=".$_POST['block']);
 		exit;
 	}
-	
-	$_reply = sc_get_result("SELECT * FROM `forum_reply` WHERE `id` = '%d' AND `author` = '%d'",array($_GET['id'],$_SESSION['Center_Id']));
-
-	if($_reply['num_rows']<=0){
-		header("Location: forum.php");
-		exit;
-	}
-	
-	if(isset($_POST['content']) && trim(strip_tags($_POST['content']),"&nbsp;") != '' && isset($_GET[$_SESSION['Center_Auth']])) {
-		$SQL->query("UPDATE `forum_reply` SET `content` = '%s' WHERE `id` = '%d' AND `author` = '%d'",array(
-			sc_xss_filter($_POST['content']),
-			$_GET['id'],
-			$_SESSION['Center_Id']
-		));
-		header("Location: forumview.php?editok&id=".$_reply['row']['post_id']);
-	}
-	
-}else{
-	header("Location: forum.php");
-	exit;
 }
 
 
-$view = new View('include/theme/default.html','include/nav.php',NULL,$center['site_name'],'論壇編輯');
+
+
+
+
+$view = new View('include/theme/default.html',$center['site_name'],'新增','include/nav.php');
 $view->addScript("include/js/notice.js");
-$view->addCSS("include/js/summernote/summernote.css");
-$view->addScript("include/js/summernote/summernote.min.js");
+$view->addCSS("include/js/summernote/summernote-bs4.css");
+$view->addScript("include/js/summernote/summernote-bs4.min.js");
 $view->addScript("include/js/summernote/lang/summernote-zh-TW.min.js");
 ?>
+
 <script>
-$(function(){
-	$("#summernote").summernote({width:'99%', height:300, focus: true, lang: 'zh-TW'});
+$(function(){;
+	$('.captcha').on('click', function(e){
+		e.preventDefault();
+		$(this).attr('src', 'include/captcha.php?_=' + (new Date).getTime());
+	});
+	
+	$("#summernote").summernote({width:'99%', height:400, focus: true, lang: 'zh-TW',toolbar: [
+	  ['misc',['undo','redo']],
+  ['style', ['style']],
+  ['fontname', ['fontname','fontsize']],
+  ['font', ['bold', 'underline', 'clear']],
+  ['color', ['color']],
+  ['para', ['ul', 'ol', 'paragraph']],
+  ['table', ['table']],
+  ['insert', ['link', 'picture', 'video']],
+  ['view', ['fullscreen', 'codeview', 'help']],
+]});
+	<?php if(isset($_GET['id'])){  ?>
+		$('.page-header').text('修改文章');
+		$.ajax({
+			url:  window.location.href.indexOf("/admin") > -1 ? '../include/ajax/forumedit.php' : 'include/ajax/forumedit.php',
+			type: 'GET',
+			data:{"<?php echo sc_csrf(); ?>": true,"pid":<?php echo $_GET['id']; ?>},
+			dataType: 'json',
+			cache: false,
+			success: function(data) {
+				if(data!=''){
+					$.each(data,function(i,v){
+						if(i=='content'){
+							$('#summernote').summernote('pasteHTML', v);
+							return;
+						}
+						$('*[name='+i+']').val(v);
+					});
+				}else{
+					alert('無法編輯。');
+				}
+			},error:function(){
+				alert('文章不存在！無法編輯。');
+			},complete:function(){	
+				$('#loading').addClass('d-none');
+				$('form').removeClass('d-none');
+			}
+		});
+
+		$('form').submit(function(e){
+			e.preventDefault();
+			$.ajax({
+				url:  (window.location.href.indexOf("/admin") > -1 ? '../':'') +'include/ajax/forumedit.php?<?php echo sc_csrf(); ?>&pid=<?php echo $_GET['id']; ?>&edit',
+				type: 'POST',
+				data:$('form').serialize(),
+				dataType: 'json',
+				cache: false,
+				beforeSend: function(){
+					$('button[type="submit"]').prop('disabled',true).prepend('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+				},
+				success: function(data) {
+					if(data.status){
+						alert('編輯成功！');
+						history.back();
+					}else{
+						alert('編輯異常。');
+					}
+				},error:function(){
+					alert('編輯異常，請洽詢問處。');
+				},
+				complete:function(){
+					$('button[type="submit"]').prop('disabled',false).find('.spinner-border').remove();
+				}
+			});
+		});
+	<?php }else{ ?>
+		$('form').removeClass('d-none');
+		$('#loading').addClass('d-none');
+	<?php } ?>
 });
 </script>
-<?php if(isset($_GET['reply'])){ ?>
-<h2>編輯回覆</h2>
-<form action="forumedit.php?reply&id=<?php echo $_reply['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" method="POST">
+<h2 class="page-header">發表文章</h2>
+<form action="?newpost&<?php echo sc_csrf(); ?>" method="POST" class="d-none">
 	<div class="form-group">
-		<label for="content">回覆內容：</label>
-		<textarea id="summernote" class="form-control" name="content" cols="65" rows="10" required="required"><?php echo sc_removal_escape_string($_reply['row']['content']); ?></textarea>
-	</div>
-	<p><input name="button" class="btn btn-primary" type="submit" value="儲存"></p>
-</form>
-<?php } elseif(isset($_GET['post'])){ ?>
-<h2>編輯文章</h2>
-<form action="forumedit.php?post&id=<?php echo $_post['row']['id'].'&'.$_SESSION['Center_Auth']; ?>" method="POST">
-	<div class="form-group">
-		<input class="form-control" name="title" type="text" placeholder="標題" required="required" value="<?php echo $_post['row']['title']; ?>">
+		<input class="form-control" name="title" type="text" placeholder="標題" required="required">
 	</div>
 	<div class="row">
 		<div class="col-md-6">
 			<div class="form-group">
 				<label for="block">區塊：</label>
 				<select class="form-control" name="block" required="required">
-				<?php do{ ?>
-					<option value="<?php echo $_block['row']['id']; ?>" <?php if($_block['row']['id']==$_post['row']['block']){ ?>selected="selected"<?php } ?>>
-						<?php echo $_block['row']['blockname']; ?>
+				<?php 
+				$_block = sc_get_result("SELECT * FROM `forum_block`");
+				foreach($_block['row'] as $v){ 
+					
+					?>
+					<option value="<?php echo $v['id']; ?>" <?php if($v['id']==$_GET['block']){ ?>selected="selected"<?php } ?>>
+						<?php echo $v['blockname']; ?>
 					</option>
-				<?php }while ($_block['row'] = $_block['query']->fetch_assoc());  ?>
+				<?php }  ?>
 				</select>
 			</div>
 		</div>
@@ -150,7 +152,7 @@ $(function(){
 				<label for="level">權限：</label>
 				<select class="form-control" name="level" required="required">
 				<?php foreach(sc_member_level_array() as $key=>$value){if($key>0){ ?>
-					<option value="<?php echo $key; ?>" <?php if($key==$_post['row']['level']){ ?>selected="selected"<?php } ?>><?php echo $value; ?></option>
+					<option value="<?php echo $key; ?>" <?php if($key==1){ ?>selected="selected"<?php } ?>><?php echo $value; ?></option>
 				<?php }} ?>
 				</select>
 			</div>
@@ -158,12 +160,27 @@ $(function(){
 	</div>
 	<div class="form-group">
 		<textarea id="summernote" name="content" rows="10" required="required">
-			<?php echo $_post['row']['content']; ?>
+			<?php
+			if(isset($_COOKIE['content'])){
+				echo $_COOKIE['content'];
+				setcookie('content','',time()-600);
+			}
+			?>
 		</textarea>
 	</div>
-	<br><input name="button" class="btn btn-primary" type="submit" value="儲存">
+	<?php if($center['forum']['captcha']==1){ ?>
+	<div class="form-group">
+		<label for="captcha">驗證碼：</label>
+		<img src="include/captcha.php" class="captcha" title="按圖更換驗證碼"/>
+		<input id="captcha" class="form-control" name="captcha" type="text" size="10" maxlength="10" required="required">
+	</div>
+	<?php } ?>
+	<br>
+	<button class="btn btn-primary" type="submit">送出</button>
 </form>
-<?php } ?>
+<div id="loading" class="text-center m-5">
+	<div class="spinner-border"></div><br><p>讀取中</p>
+</div>
 <?php
 $view->render();
 ?>
